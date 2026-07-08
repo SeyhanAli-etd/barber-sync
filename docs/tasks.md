@@ -43,6 +43,7 @@ Bu dosya, projenin geliştirme görevlerini takip etmek için kullanılır.
 - [x] **v2.0:** Randevuyu tamamlarken yapılan hizmeti ve ücreti kaydetme altyapısını kur (Backend & DB).
 - [x] **v2.0:** Berberin günlük ve aylık cirosunu hesaplayan API endpoint'ini oluştur (Backend).
 - [ ] **v2.0:** Berberin hizmetlerini yönetebileceği arayüzü oluştur (Frontend).
+- [x] **v2.0:** Berberin hizmetlerini yönetebileceği arayüzü oluştur (Frontend).
 - [x] **v2.0:** Berberin ciro raporlarını görebileceği dashboard ekranını oluştur (Frontend).
 
 ### v3.0 için Planlananlar (Gelişmiş Profil ve Etkileşim)

@@ -84,7 +84,7 @@ Table appointments {
   notes text
   created_at timestamp [default: `now()`]
   
-  // Ciro takibi için eklendi (v3.0)
+  // Ciro takibi için eklendi (v2.0)
   final_price numeric(10, 2)
   performed_service_name varchar(255)
   completed_at timestamp
