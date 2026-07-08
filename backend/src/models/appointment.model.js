@@ -109,6 +109,55 @@ const Appointment = {
     const { rows } = await db.query(query, [barberId]);
     return rows;
   },
+
+  /**
+   * Müşterinin kendi randevularını bulur (berber ve dükkan adı ile birlikte)
+   * @param {string} customerId
+   * @returns {Promise<object[]>}
+   */
+  findForCustomer: async (customerId) => {
+    const query = `
+      SELECT
+        a.id,
+        a.appointment_time,
+        a.status,
+        a.notes,
+        a.created_at,
+        u.full_name AS barber_name,
+        bp.shop_name
+      FROM appointments a
+      JOIN users u ON a.barber_id = u.id
+      LEFT JOIN barber_profiles bp ON a.barber_id = bp.user_id
+      WHERE a.customer_id = $1
+      ORDER BY a.appointment_time DESC;
+    `;
+    const { rows } = await db.query(query, [customerId]);
+    return rows;
+  },
+
+  /**
+   * Marks an appointment as completed and records the financial details.
+   * @param {string} id - The ID of the appointment.
+   * @param {object} details
+   * @param {number} details.finalPrice - The final price charged.
+   * @param {string} details.serviceName - The name of the service performed.
+   * @returns {Promise<object>} The completed appointment.
+   */
+  complete: async (id, { finalPrice, serviceName }) => {
+    const query = `
+      UPDATE appointments
+      SET
+        status = 'completed',
+        final_price = $1,
+        performed_service_name = $2,
+        completed_at = now()
+      WHERE id = $3
+      RETURNING *;
+    `;
+    const values = [finalPrice, serviceName, id];
+    const { rows } = await db.query(query, values);
+    return rows[0];
+  },
 };
 
 module.exports = Appointment;

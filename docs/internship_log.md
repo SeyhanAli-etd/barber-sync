@@ -260,3 +260,146 @@ Bu doküman, "Barber-Sync" projesi geliştirme sürecinde yapılan günlük çal
     - Proje dosyaları `git add .` ve `git commit -m "Initial commit"` komutlarıyla kaydedildi.
     - `git push -u origin main` komutu ile tüm proje geçmişi GitHub'a başarıyla yüklendi.
 - **Öğrenimler:** Git'in temel komutları (`init`, `add`, `commit`, `branch`, `remote`, `push`) öğrenildi. `.gitignore` dosyasının neden önemli olduğu ve hassas bilgilerin (API anahtarları, veritabanı şifreleri) ile gereksiz dosyaların (paket bağımlılıkları) versiyon kontrolüne dahil edilmemesi gerektiği anlaşıldı. Kodun merkezi bir depoda saklanmasının yedekleme, işbirliği ve versiyon takibi açısından faydaları kavrandı.
+
+---
+
+### 23. Gün: Ciro Takibi Özelliği için Veritabanı Altyapısının Kurulması
+
+- **Yapılanlar:** Projenin v3.0 hedefi olan ciro takibi özelliğinin ilk adımı olarak veritabanı şeması güncellendi.
+- **Çıktılar:**
+    - Berberlerin hizmetlerini (saç, sakal vb.) ve fiyatlarını tanımlayabilmesi için bir `services` tablosu oluşturuldu. Bu tablo, berberin "hizmet menüsü" olarak görev yapacak.
+    - Mevcut `appointments` tablosuna, bir randevu tamamlandığında kesilen nihai ücreti (`final_price`), yapılan hizmetin adını (`performed_service_name`) ve tamamlanma zamanını (`completed_at`) saklamak için yeni kolonlar eklendi.
+    - Bu değişiklikler, `architecture.md` dokümanındaki veritabanı şemasına da yansıtıldı.
+- **Öğrenimler:** Bir özelliğin verisini saklarken, gelecekteki raporlama ihtiyaçlarını (ciro hesaplama gibi) göz önünde bulundurarak şema tasarımının nasıl yapılması gerektiği öğrenildi. Bir işlemin "menü fiyatı" (services tablosu) ile "satış fiyatını" (appointments tablosu) ayrı ayrı saklamanın, indirim ve özel durumlar için esneklik sağladığı anlaşıldı. `ALTER TABLE` komutu ile mevcut bir tablonun yapısının nasıl değiştirileceği pratik edildi.
+
+---
+
+### 24. Gün: Müşteri Randevu Paneli API'si
+
+- **Yapılanlar:** Giriş yapmış bir müşterinin, kendi geçmiş ve gelecek tüm randevularını görebilmesi için bir API endpoint'i (`GET /api/appointments/my-appointments`) oluşturuldu.
+- **Çıktılar:**
+    - `appointment.model.js` dosyasına, belirli bir müşterinin tüm randevularını, `JOIN` ile berber ve dükkan adı gibi zenginleştirilmiş bilgilerle birlikte getiren `findForCustomer` fonksiyonu eklendi.
+    - `appointment.controller.js` dosyasına, isteği işleyen `getCustomerAppointments` fonksiyonu eklendi.
+    - `appointment.routes.js` dosyasına `/my-appointments` yolu eklendi ve bu endpoint `authMiddleware` ile `roleMiddleware('customer')` kullanılarak sadece müşterilerin erişimine açıldı.
+- **Öğrenimler:** Bir kullanıcının "kendine ait" verileri listelemesi senaryosunun farklı bir rol (bu kez 'customer') için nasıl uygulandığı görüldü. Veritabanı sorgularında `JOIN` kullanarak zenginleştirilmiş veri setleri hazırlamanın, frontend tarafında yapılacak ek API çağrılarını azaltarak performansı ve geliştirici verimliliğini artırdığı pekiştirildi.
+
+---
+
+### 25. Gün: Berber Hizmet Yönetimi API'si (CRUD)
+
+- **Yapılanlar:** Ciro takibi özelliğinin ikinci adımı olarak, berberlerin kendi "hizmet menülerini" yönetebilmeleri için tam bir CRUD (Create, Read, Update, Delete) API'si oluşturuldu.
+- **Çıktılar:**
+    - `service.model.js`, `service.controller.js` ve `service.routes.js` adında yeni dosyalar oluşturularak hizmet yönetimi mantığı kendi modülüne ayrıldı.
+    - `POST /api/services`: Berberin yeni bir hizmet (saç, sakal vb.) eklemesini sağlar.
+    - `GET /api/services`: Berberin mevcut tüm aktif hizmetlerini listeler.
+    - `PUT /api/services/:id`: Berberin bir hizmetin adını, fiyatını veya süresini güncellemesini sağlar.
+    - `DELETE /api/services/:id`: Bir hizmeti siler (veritabanında `is_active=false` olarak işaretleyerek "soft delete" yapılır).
+    - Tüm endpoint'ler, sadece `barber` rolüne sahip kullanıcıların erişebileceği ve sadece kendi hizmetleri üzerinde işlem yapabilecekleri şekilde güvenli hale getirildi.
+- **Öğrenimler:** Bir kaynak için tam bir CRUD (Oluştur, Oku, Güncelle, Sil) döngüsünün API tarafında nasıl tasarlandığı ve uygulandığı pratik edildi. "Soft delete" (yumuşak silme) yaklaşımının, veri kaybını önlemek ve geçmiş kayıtların bütünlüğünü korumak için neden "hard delete" (kalıcı silme) işlemine tercih edildiği anlaşıldı. Veritabanı `UNIQUE` kısıtlamasından kaynaklanan hataların (örn: aynı isimde ikinci bir hizmet ekleme) controller katmanında nasıl yakalanıp anlamlı bir `409 Conflict` hatasına dönüştürüldüğü öğrenildi.
+
+---
+
+### 26. Gün: Randevu Tamamlama ve Ciroya İşleme API'si
+
+- **Yapılanlar:** Ciro takibi özelliğinin en kritik adımı olan, bir randevunun "tamamlandı" olarak işaretlenip, yapılan hizmet ve ücretin ciroya kaydedilmesini sağlayan API endpoint'i (`POST /api/appointments/:id/complete`) oluşturuldu.
+- **Çıktılar:**
+    - `appointment.model.js` dosyasına, bir randevunun durumunu `completed` olarak güncelleyen ve `final_price`, `performed_service_name`, `completed_at` alanlarını dolduran yeni bir `complete` fonksiyonu eklendi.
+    - `appointment.controller.js` dosyasına, `completeAppointment` adında yeni bir fonksiyon eklendi. Bu fonksiyon:
+        1.  İstekle gelen `service_id`'yi doğrular.
+        2.  Hem randevunun hem de seçilen hizmetin varlığını ve berbere ait olduğunu kontrol eder.
+        3.  Sadece `confirmed` durumundaki randevuların tamamlanmasına izin verir.
+        4.  İstekle özel bir `final_price` gelmezse, hizmetin standart fiyatını ciroya işler.
+    - `appointment.routes.js` dosyasına, bu yeni controller'ı tetikleyen ve sadece berberlerin erişebileceği `/complete` rotası eklendi.
+- **Öğrenimler:** Bir iş akışının (workflow) API'de nasıl modellendiği (örn: randevu onayla -> tamamla) öğrenildi. `Promise.all` kullanarak birden fazla veritabanı okuma işlemini paralel hale getirmenin performansa etkisi görüldü. Bir API endpoint'inin, birden fazla kaynağın (randevu ve hizmet) durumunu doğrulayarak nasıl karmaşık iş kuralları uygulayabileceği pratik edildi. İsteğe bağlı alanlarla (optional request body fields) esnek bir API tasarımının nasıl yapılabileceği anlaşıldı.
+
+---
+
+### 27. Gün: Ciro Raporlama API'si
+
+- **Yapılanlar:** Ciro takibi özelliğinin son backend adımı olarak, giriş yapmış bir berberin günlük ve aylık toplam cirosunu ve işlem sayısını görebileceği bir raporlama API'si (`GET /api/reports/revenue`) oluşturuldu.
+- **Çıktılar:**
+    - Raporlama mantığını ana modüllerden ayırmak için `report.model.js`, `report.controller.js` ve `report.routes.js` adında yeni dosyalar oluşturuldu.
+    - `report.model.js` dosyasına, belirli bir tarih aralığındaki tamamlanmış randevuların `final_price` alanını toplayan (`SUM`) ve işlem sayısını sayan (`COUNT`) bir `getRevenueStats` fonksiyonu eklendi.
+    - `report.controller.js` dosyasına, hem içinde bulunulan günün hem de ayın başlangıç ve bitiş tarihlerini hesaplayan bir `getRevenueReport` fonksiyonu yazıldı. Bu fonksiyon, `Promise.all` ile her iki periyot için istatistikleri paralel olarak çeker.
+    - `app.js` dosyası, yeni `/api/reports` yolunu kullanacak şekilde güncellendi.
+- **Öğrenimler:** Veritabanında `SUM` ve `COUNT` gibi aggregate (toplama) fonksiyonlarının raporlama amaçlı nasıl kullanılacağı öğrenildi. `COALESCE` fonksiyonu ile `SUM`'dan `NULL` dönmesi durumunun nasıl yönetileceği ve 0 olarak gösterileceği pratik edildi. JavaScript'in `Date` objesi ile dinamik tarih aralıkları (ayın başı, günün sonu vb.) oluşturma pratiği yapıldı. Raporlama gibi farklı bir işlevselliğe sahip özelliklerin, kod organizasyonu için ayrı modüller halinde tasarlanmasının önemi anlaşıldı.
+
+---
+
+### 28. Gün: Gerçek Zamanlı Bildirim Sistemi (Socket.IO)
+
+- **Yapılanlar:** Berber bir randevuyu onayladığında veya iptal ettiğinde, müşteriye anında bildirim gitmesini sağlayan altyapı Socket.IO kullanılarak kuruldu.
+- **Çıktılar:**
+    - `socket.io` paketi projeye eklendi ve `app.js` dosyası, HTTP sunucusu üzerinden Socket.IO bağlantılarını kabul edecek şekilde yeniden yapılandırıldı.
+    - `sockets/socketManager.js` adında yeni bir modül oluşturuldu. Bu modül, bağlanan her kullanıcının JWT'sini doğrulayarak kendi `user_id`'si ile adlandırılmış özel bir "odaya" katılmasını sağlar.
+    - `appointment.controller.js` içindeki `updateAppointmentStatus` fonksiyonu güncellendi. Artık bir randevunun durumu değiştiğinde, sunucu, randevu sahibinin (`customer_id`) odasına `appointment_update` adında bir olay (event) gönderiyor.
+- **Öğrenimler:** Geleneksel HTTP'nin istek-cevap modelinin anlık bildirimler için neden yetersiz olduğu ve "polling" gibi yöntemlerin verimsizliği anlaşıldı. WebSocket teknolojisinin, sunucu ile istemci arasında kalıcı ve çift yönlü bir iletişim kanalı kurarak bu sorunu nasıl çözdüğü öğrenildi. Socket.IO'nun, WebSocket'i basitleştiren, "room" (oda) gibi özelliklerle hedefli mesajlaşmayı kolaylaştıran ve tarayıcı uyumluluğu sağlayan bir kütüphane olduğu kavrandı.
+
+---
+
+### 29. Gün: Frontend Bildirim Sistemi (React Context)
+
+- **Yapılanlar:** Backend'den gelen anlık bildirimleri yakalamak, yönetmek ve kullanıcıya göstermek için frontend tarafında bir altyapı kuruldu.
+- **Çıktılar:**
+    - `socket.io-client` paketi frontend projesine eklendi.
+    - `NotificationContext.jsx` adında yeni bir React Context'i oluşturuldu. Bu context, kullanıcının token'ı ile Socket.IO sunucusuna bağlanır, `appointment_update` olaylarını dinler ve gelen bildirimleri bir state içinde saklar.
+    - `useNotifications.js` adında, bu context'e kolay erişim sağlayan bir custom hook oluşturuldu.
+    - `NotificationDisplay.jsx` adında, `useNotifications` hook'unu kullanarak gelen bildirimleri ekranda gösteren ve kapatılmasına olanak tanıyan bir UI bileşeni oluşturuldu.
+- **Öğrenimler:** React Context API'nin, global state (uygulama genelinde erişilmesi gereken veri) yönetimi için nasıl kullanıldığı pratik edildi. Bir `Provider` bileşeninin, `useEffect` hook'u içinde dış sistemlerle (Socket.IO sunucusu gibi) nasıl bağlantı kurup yönettiği ve "cleanup" fonksiyonu ile bağlantıyı nasıl güvenli bir şekilde sonlandırdığı öğrenildi. Custom hook'ların, karmaşık context mantığını soyutlayarak bileşenlerde daha temiz ve okunabilir bir kullanım sağladığı anlaşıldı.
+
+---
+
+### 30. Gün: Frontend Projesinin Başlatılması (Vite + React)
+
+- **Yapılanlar:** `npm create vite@latest` komutu kullanılarak `frontend` adında yeni bir React projesi oluşturuldu.
+- **Çıktılar:**
+    - Vite ile temel bir React proje iskeleti (`src`, `public`, `package.json` vb.) oluşturuldu.
+    - Gerekli bağımlılıklar `npm install` ile yüklendi.
+    - `npm run dev` komutu ile geliştirme sunucusu başlatıldı ve `http://localhost:5173` adresinde çalışan varsayılan React uygulaması görüntülendi.
+- **Öğrenimler:** Vite'ın ne olduğu ve geleneksel `create-react-app`'e göre neden daha hızlı bir geliştirme deneyimi sunduğu (native ES module desteği) anlaşıldı. Bir frontend projesinin nasıl başlatıldığı, bağımlılıklarının nasıl yönetildiği ve geliştirme sunucusunun nasıl çalıştırıldığı pratik edildi. HMR (Hot Module Replacement) kavramının, kodda yapılan değişikliklerin tarayıcıya anında yansımasını sağlayarak geliştirme verimliliğini nasıl artırdığı görüldü.
+
+---
+
+### 31. Gün: Frontend Kimlik Doğrulama Akışı (Login)
+
+- **Yapılanlar:** Kullanıcıların frontend üzerinden giriş yapabilmesi ve oturum durumunun uygulama genelinde yönetilebilmesi için tam bir kimlik doğrulama akışı oluşturuldu.
+- **Çıktılar:**
+    - `services/authService.js`: Backend'in login endpoint'ine istek atan bir servis modülü oluşturuldu.
+    - `context/AuthContext.jsx`: Kullanıcı, token ve kimlik doğrulama durumunu (`isAuthenticated`) global olarak yöneten bir React Context'i oluşturuldu. Bu context, `login` ve `logout` fonksiyonları sağlar ve token'ı `localStorage`'da saklar.
+    - `hooks/useAuth.js`: `AuthContext`'e kolay erişim sağlayan bir custom hook oluşturuldu.
+    - `pages/LoginPage.jsx`: Kullanıcının e-posta ve şifresini girebileceği bir giriş formu bileşeni oluşturuldu.
+    - `App.jsx` ana bileşeni, `AuthProvider` ile sarmalandı ve artık kullanıcının giriş durumuna göre ya `LoginPage`'i ya da ana uygulamayı (`AuthenticatedApp`) koşullu olarak render ediyor.
+    - `NotificationContext`, token'ı doğrudan `localStorage`'dan okumak yerine `useAuth` hook'unu kullanacak şekilde güncellendi.
+- **Öğrenimler:** React'te global state yönetimi için Context API'nin (bu kez kimlik doğrulama için) nasıl güçlü bir araç olduğu pekiştirildi. `localStorage`'ın, tarayıcı kapatılıp açılsa bile oturum bilgilerini saklamak için nasıl kullanıldığı öğrenildi. Koşullu renderlama (conditional rendering) ile bir uygulamanın farklı kullanıcı durumlarına (giriş yapmış / yapmamış) göre farklı arayüzler nasıl gösterebileceği pratik edildi. Frontend'de servis katmanı oluşturarak API çağrılarının bileşen mantığından nasıl soyutlandığı anlaşıldı.
+
+---
+
+### 32. Gün: Frontend Kullanıcı Kayıt Akışı
+
+- **Yapılanlar:** Kullanıcıların frontend arayüzü üzerinden sisteme kayıt olabilmeleri için bir kayıt sayfası ve akışı oluşturuldu.
+- **Çıktılar:**
+    - `services/authService.js` dosyasına, backend'in `/api/auth/register` endpoint'ine istek gönderen bir `register` fonksiyonu eklendi.
+    - `pages/RegisterPage.jsx` adında, kullanıcının ad, e-posta, şifre ve rol (Müşteri/Berber) bilgilerini girebileceği yeni bir sayfa bileşeni oluşturuldu. Başarılı kayıt sonrası kullanıcıya bir bildirim gösterilir ve giriş sayfasına yönlendirilir.
+    - `LoginPage.jsx` bileşenine, kullanıcıyı kayıt sayfasına yönlendiren bir "Kayıt ol" linki eklendi.
+    - `App.jsx` dosyası, giriş yapmamış kullanıcılar için `LoginPage` ve `RegisterPage` arasında geçişi yöneten bir `UnauthenticatedApp` bileşeni içerecek şekilde yeniden düzenlendi.
+- **Öğrenimler:** Bir React uygulamasında, router kullanmadan basit state yönetimi ile farklı formlar veya sayfalar arasında nasıl geçiş yapılabileceği öğrenildi. Kullanıcıya geri bildirim vermenin (başarı/hata mesajları) ve form gönderimi sonrası kullanıcı deneyimini iyileştirmenin (örn: butonu devre dışı bırakma, otomatik yönlendirme) önemi anlaşıldı.
+
+---
+
+### 34. Gün: Proje Değişikliklerini GitHub'a Yükleme (Git Workflow)
+
+- **Yapılanlar:** Projede yapılan değişikliklerin ve eklenen yeni özelliklerin (frontend projesi, yeni API'ler vb.) yerel depodan GitHub'daki uzak depoya nasıl yükleneceği öğrenildi.
+- **Çıktılar:** Temel Git iş akışı olan "add, commit, push" döngüsü pratik edildi:
+    1.  `git add .`: Tüm yeni ve değiştirilmiş dosyaları "sahneye" (staging area) ekler.
+    2.  `git commit -m "Açıklayıcı bir mesaj"`: Sahnedeki değişiklikleri, ne yapıldığını anlatan bir mesajla birlikte kalıcı bir versiyon (commit) olarak kaydeder.
+    3.  `git push`: Yereldeki tüm yeni commit'leri GitHub'daki `origin main` dalına gönderir.
+- **Öğrenimler:** Proje geçmişini temiz ve anlaşılır tutmak için düzenli olarak commit yapmanın ve açıklayıcı commit mesajları yazmanın önemi kavrandı. Bir geliştiricinin günlük iş akışında Git'i nasıl aktif olarak kullanacağı anlaşıldı.
+
+---
+
+### 33. Gün: Frontend-Backend Bağlantı Hatası ("Failed to fetch") ve CORS
+
+- **Yapılanlar:** Frontend'deki kayıt formundan istek gönderilirken "Failed to fetch" hatası alındı ve bu hata ayıklandı.
+- **Karşılaşılan Sorunlar:** Tarayıcı geliştirici konsolu incelendiğinde, hatanın "CORS policy" tarafından engellendiği görüldü. Bu, `http://localhost:5173` adresinde çalışan frontend'in, güvenlik nedeniyle `http://localhost:5000` adresindeki backend'e istek göndermesinin tarayıcı tarafından engellenmesi anlamına geliyordu.
+- **Çıktılar:** Backend'deki `app.js` dosyasında bulunan `cors` middleware'i, `origin` seçeneği ile sadece frontend adresine (`http://localhost:5173`) izin verecek şekilde daha spesifik olarak yapılandırıldı. Bu değişiklik sonrası frontend'den gönderilen API istekleri başarıyla backend'e ulaştı.
+- **Öğrenimler:** "Failed to fetch" hatasının genellikle bir ağ veya CORS sorunu olduğuna işaret ettiği öğrenildi. Tarayıcı geliştirici araçlarındaki "Console" ve "Network" sekmelerinin, bu tür hataların kök nedenini bulmak için ne kadar kritik olduğu anlaşıldı. CORS (Cross-Origin Resource Sharing) politikasının ne olduğu ve modern web uygulamalarında backend'in, hangi "origin"lerden (kaynaklardan) istek kabul edeceğini açıkça belirtmesi gerektiği kavrandı.

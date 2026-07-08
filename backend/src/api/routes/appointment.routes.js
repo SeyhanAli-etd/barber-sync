@@ -32,4 +32,23 @@ router.get(
   appointmentController.getBarberAppointments
 );
 
+// @route   GET /my-appointments
+// @desc    Get all appointments for the logged-in customer
+// @access  Private (Customers only)
+router.get(
+  '/my-appointments',
+  [authMiddleware, roleMiddleware('customer')],
+  appointmentController.getCustomerAppointments
+);
+
+
+// @route   POST /api/appointments/:id/complete
+// @desc    Mark an appointment as completed
+// @access  Private (Barbers only)
+router.post(
+  '/:id/complete',
+  [authMiddleware, roleMiddleware('barber')],
+  appointmentController.completeAppointment
+);
+
 module.exports = router;

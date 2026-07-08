@@ -1,6 +1,7 @@
 // backend/src/controllers/appointment.controller.js
 const Appointment = require('../models/appointment.model');
 const BarberProfile = require('../models/barberProfile.model');
+const Service = require('../models/service.model');
 
 // @route   POST /api/appointments
 // @desc    Create a new appointment
@@ -69,6 +70,56 @@ exports.createAppointment = async (req, res) => {
   }
 };
 
+// @route   POST /api/appointments/:id/complete
+// @desc    Mark an appointment as completed and log the service/price
+// @access  Private (Barbers only)
+exports.completeAppointment = async (req, res) => {
+  try {
+    const { id: appointmentId } = req.params;
+    const { service_id, final_price } = req.body;
+    const barberId = req.user.id;
+
+    // 1. Girdi doğrulaması
+    if (!service_id) {
+      return res.status(400).json({ message: 'Yapılan hizmeti belirtmek için service_id zorunludur.' });
+    }
+
+    // 2. Gerekli kaynakları bul (randevu ve hizmet)
+    const [appointment, service] = await Promise.all([
+      Appointment.findById(appointmentId),
+      Service.findById(service_id)
+    ]);
+
+    // 3. Doğrulama ve Yetkilendirme
+    if (!appointment) {
+      return res.status(404).json({ message: 'Randevu bulunamadı.' });
+    }
+    if (!service) {
+      return res.status(404).json({ message: 'Hizmet bulunamadı.' });
+    }
+
+    // Sahiplik kontrolü
+    if (appointment.barber_id !== barberId || service.barber_id !== barberId) {
+      return res.status(403).json({ message: 'Bu işlem için yetkiniz yok.' });
+    }
+
+    // Durum kontrolü: Sadece onaylanmış randevular tamamlanabilir
+    if (appointment.status !== 'confirmed') {
+      return res.status(400).json({ message: `Sadece 'confirmed' durumundaki randevular tamamlanabilir. Bu randevunun durumu: '${appointment.status}'.` });
+    }
+
+    // 4. Nihai fiyatı belirle (eğer istekte gelmezse hizmetin standart fiyatını kullan)
+    const priceToLog = final_price !== undefined ? final_price : service.price;
+
+    // 5. Randevuyu tamamla
+    const completedAppointment = await Appointment.complete(appointmentId, { finalPrice: priceToLog, serviceName: service.name });
+    res.json(completedAppointment);
+  } catch (error) {
+    console.error('Randevu tamamlama hatası:', error);
+    res.status(500).send('Sunucu Hatası');
+  }
+};
+
 // @route   PATCH /api/appointments/:id/status
 // @desc    Update an appointment's status (confirm/cancel)
 // @access  Private (Barbers only)
@@ -102,6 +153,14 @@ exports.updateAppointmentStatus = async (req, res) => {
     // 5. Durumu güncelle
     const updatedAppointment = await Appointment.updateStatus(appointmentId, status);
 
+    // --- 6. Müşteriye Anlık Bildirim Gönder ---
+    const io = req.app.get('io');
+    const customerId = updatedAppointment.customer_id;
+    io.to(customerId).emit('appointment_update', {
+      message: `Berber, randevunuzun durumunu '${status}' olarak güncelledi.`,
+      appointment: updatedAppointment
+    });
+
     res.json(updatedAppointment);
   } catch (error) {
     console.error('Randevu durumu güncelleme hatası:', error);
@@ -121,6 +180,22 @@ exports.getBarberAppointments = async (req, res) => {
     res.json(appointments);
   } catch (error) {
     console.error('Berber randevularını getirme hatası:', error);
+    res.status(500).send('Sunucu Hatası');
+  }
+};
+
+// @route   GET /api/appointments/my-appointments
+// @desc    Get all appointments for the logged-in customer
+// @access  Private (Customers only)
+exports.getCustomerAppointments = async (req, res) => {
+  try {
+    const customerId = req.user.id; // from authMiddleware
+
+    const appointments = await Appointment.findForCustomer(customerId);
+
+    res.json(appointments);
+  } catch (error) {
+    console.error('Müşteri randevularını getirme hatası:', error);
     res.status(500).send('Sunucu Hatası');
   }
 };

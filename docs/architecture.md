@@ -83,6 +83,21 @@ Table appointments {
   status appointment_status [not null, default: 'pending']
   notes text
   created_at timestamp [default: `now()`]
+  
+  // Ciro takibi için eklendi (v3.0)
+  final_price numeric(10, 2)
+  performed_service_name varchar(255)
+  completed_at timestamp
+}
+
+Table services {
+  id uuid [pk, default: `gen_random_uuid()`]
+  barber_id uuid [ref: > users.id, not null]
+  name varchar(100) [not null]
+  price numeric(10, 2) [not null]
+  duration_minutes integer [not null]
+  is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
 }
 
 Enum user_role {
@@ -96,6 +111,7 @@ Enum appointment_status {
   cancelled
   completed
 }
+
 ```
 
 **Tasarım Gerekçeleri:**
