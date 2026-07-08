@@ -386,6 +386,15 @@ Bu doküman, "Barber-Sync" projesi geliştirme sürecinde yapılan günlük çal
 
 ---
 
+### 33. Gün: Frontend-Backend Bağlantı Hatası ("Failed to fetch") ve CORS
+
+- **Yapılanlar:** Frontend'deki kayıt formundan istek gönderilirken "Failed to fetch" hatası alındı ve bu hata ayıklandı.
+- **Karşılaşılan Sorunlar:** Tarayıcı geliştirici konsolu incelendiğinde, hatanın "CORS policy" tarafından engellendiği görüldü. Bu, `http://localhost:5173` adresinde çalışan frontend'in, güvenlik nedeniyle `http://localhost:5000` adresindeki backend'e istek göndermesinin tarayıcı tarafından engellenmesi anlamına geliyordu.
+- **Çıktılar:** Backend'deki `app.js` dosyasında bulunan `cors` middleware'i, `origin` seçeneği ile sadece frontend adresine (`http://localhost:5173`) izin verecek şekilde daha spesifik olarak yapılandırıldı. Bu değişiklik sonrası frontend'den gönderilen API istekleri başarıyla backend'e ulaştı.
+- **Öğrenimler:** "Failed to fetch" hatasının genellikle bir ağ veya CORS sorunu olduğuna işaret ettiği öğrenildi. Tarayıcı geliştirici araçlarındaki "Console" ve "Network" sekmelerinin, bu tür hataların kök nedenini bulmak için ne kadar kritik olduğu anlaşıldı. CORS (Cross-Origin Resource Sharing) politikasının ne olduğu ve modern web uygulamalarında backend'in, hangi "origin"lerden (kaynaklardan) istek kabul edeceğini açıkça belirtmesi gerektiği kavrandı.
+
+---
+
 ### 34. Gün: Proje Değişikliklerini GitHub'a Yükleme (Git Workflow)
 
 - **Yapılanlar:** Projede yapılan değişikliklerin ve eklenen yeni özelliklerin (frontend projesi, yeni API'ler vb.) yerel depodan GitHub'daki uzak depoya nasıl yükleneceği öğrenildi.
@@ -397,9 +406,181 @@ Bu doküman, "Barber-Sync" projesi geliştirme sürecinde yapılan günlük çal
 
 ---
 
-### 33. Gün: Frontend-Backend Bağlantı Hatası ("Failed to fetch") ve CORS
+### 35. Gün: Frontend Sayfa Yönlendirme (Routing)
 
-- **Yapılanlar:** Frontend'deki kayıt formundan istek gönderilirken "Failed to fetch" hatası alındı ve bu hata ayıklandı.
-- **Karşılaşılan Sorunlar:** Tarayıcı geliştirici konsolu incelendiğinde, hatanın "CORS policy" tarafından engellendiği görüldü. Bu, `http://localhost:5173` adresinde çalışan frontend'in, güvenlik nedeniyle `http://localhost:5000` adresindeki backend'e istek göndermesinin tarayıcı tarafından engellenmesi anlamına geliyordu.
-- **Çıktılar:** Backend'deki `app.js` dosyasında bulunan `cors` middleware'i, `origin` seçeneği ile sadece frontend adresine (`http://localhost:5173`) izin verecek şekilde daha spesifik olarak yapılandırıldı. Bu değişiklik sonrası frontend'den gönderilen API istekleri başarıyla backend'e ulaştı.
-- **Öğrenimler:** "Failed to fetch" hatasının genellikle bir ağ veya CORS sorunu olduğuna işaret ettiği öğrenildi. Tarayıcı geliştirici araçlarındaki "Console" ve "Network" sekmelerinin, bu tür hataların kök nedenini bulmak için ne kadar kritik olduğu anlaşıldı. CORS (Cross-Origin Resource Sharing) politikasının ne olduğu ve modern web uygulamalarında backend'in, hangi "origin"lerden (kaynaklardan) istek kabul edeceğini açıkça belirtmesi gerektiği kavrandı.
+- **Yapılanlar:** Uygulama içi sayfa geçişlerini yönetmek için `react-router-dom` kütüphanesi projeye entegre edildi.
+- **Çıktılar:**
+    - `react-router-dom` paketi frontend projesine eklendi.
+    - `main.jsx` dosyası, tüm uygulamayı `<BrowserRouter>` ile sarmalayacak şekilde güncellendi.
+    - `App.jsx` dosyası, state tabanlı sayfa geçişi yerine `Routes` ve `Route` bileşenlerini kullanacak şekilde tamamen yeniden yapılandırıldı. `/login`, `/register` gibi halka açık rotalar ve `/*` gibi özel rotalar tanımlandı.
+    - `components/PrivateRoute.jsx` adında, sadece giriş yapmış kullanıcıların erişebileceği sayfaları koruyan yeni bir bileşen oluşturuldu.
+    - `LoginPage` ve `RegisterPage` bileşenleri, `useNavigate` hook'u ile yönlendirme yapacak ve sayfalar arası geçiş için `<Link>` bileşenini kullanacak şekilde güncellendi.
+- **Öğrenimler:** Tek Sayfa Uygulamalarında (SPA) routing'in (yönlendirme) önemi ve `react-router-dom`'un temel bileşenleri (`BrowserRouter`, `Routes`, `Route`, `Link`, `useNavigate`) öğrenildi. Korumalı rotalar (private routes) oluşturarak bir uygulamanın belirli bölümlerine erişimi nasıl kısıtlayacağımız pratik edildi. URL'nin, uygulama state'ini yönetmek için nasıl güçlü bir araç olduğu anlaşıldı.
+
+---
+
+### 36. Gün: Berber Listeleme Sayfası
+
+- **Yapılanlar:** Müşterilerin, sistemdeki tüm berberleri listeleyebileceği bir sayfa oluşturuldu.
+- **Çıktılar:**
+    - `services/barberService.js` adında, backend'in `/api/barbers` endpoint'ine istek atan yeni bir servis modülü oluşturuldu.
+    - `pages/BarbersListPage.jsx` adında, `useEffect` ile berber listesini çeken, yüklenme ve hata durumlarını yöneten yeni bir sayfa bileşeni oluşturuldu.
+    - `App.jsx` dosyası, `react-router-dom`'un iç içe rota (nested routes) ve `Outlet` özelliklerini kullanacak şekilde yeniden yapılandırıldı. Giriş yapmış kullanıcılar için ortak bir `AppLayout` (navigasyon menüsü vb. içeren) oluşturuldu.
+    - `/barbers` yolu, `AppLayout` içinde `BarbersListPage` bileşenini gösterecek şekilde `Routes`'a eklendi.
+- **Öğrenimler:** Bir `useEffect` hook'u içinde asenkron API çağrılarının nasıl yapılacağı ve gelen verinin state'e nasıl yazılacağı pratik edildi. Yüklenme (loading) ve hata (error) durumlarını yöneterek kullanıcıya daha iyi bir deneyim sunmanın önemi anlaşıldı. `react-router-dom`'un `Outlet` bileşeni ile iç içe (nested) ve layout tabanlı rota yapılarının nasıl oluşturulduğu öğrenildi.
+
+---
+
+### 37. Gün: Kullanıcı Profil Sayfası ve Oturum Doğrulama
+
+- **Yapılanlar:** Giriş yapmış kullanıcıların kendi profil bilgilerini görebileceği ve berberlerin kendi profesyonel profillerini yönetebileceği bir profil sayfası oluşturuldu. Ayrıca, sayfa yenilendiğinde oturumun devam etmesini sağlayan bir iyileştirme yapıldı.
+- **Çıktılar:**
+    - `AuthContext` güncellendi: Artık sayfa yüklendiğinde `localStorage`'daki token'ı kullanarak `/api/users/me` endpoint'inden kullanıcı bilgilerini çekiyor ve `user` state'ini dolduruyor. Bu, sayfa yenilemelerinde oturumun korunmasını sağladı.
+    - `services/profileService.js` adında, berberin kendi profilini getiren (`GET /api/profile/me`) ve güncelleyen (`PUT /api/profile/me`) fonksiyonları içeren yeni bir servis modülü oluşturuldu.
+    - `pages/ProfilePage.jsx` adında yeni bir sayfa bileşeni oluşturuldu. Bu bileşen, kullanıcının rolüne göre koşullu olarak farklı arayüzler render eder: Müşteri için temel bilgileri gösterir, berber için ise profilini yönetebileceği bir form sunar.
+    - `App.jsx` içindeki `/profile` rotası, bu yeni `ProfilePage` bileşenini gösterecek şekilde güncellendi.
+- **Öğrenimler:** Bir React uygulamasında kalıcı oturum (persistent session) yönetiminin nasıl yapılacağı öğrenildi. `localStorage`'daki token'ın, uygulama her yüklendiğinde kullanıcı verisini yeniden çekmek için nasıl bir anahtar olarak kullanıldığı anlaşıldı. Bir bileşenin, kullanıcının rolü gibi context'ten gelen verilere göre farklı görünümler veya işlevler sunacak şekilde nasıl tasarlanacağı (koşullu renderlama) pekiştirildi.
+
+---
+
+### 38. Gün: Sunucu Başlatma Hatası (EADDRINUSE)
+
+- **Yapılanlar:** Backend sunucusu başlatılmaya çalışılırken `Error: listen EADDRINUSE: address already in use :::5000` hatası alındı ve bu hata çözüldü.
+- **Karşılaşılan Sorunlar:** Hatanın, daha önceki bir oturumdan kalan ve düzgün kapatılmamış bir Node.js işleminin hala `5000` portunu kullanmasından kaynaklandığı anlaşıldı.
+- **Çıktılar:** Sorunu çözmek için iki yöntem öğrenildi:
+    1.  **Basit Yöntem:** VS Code'u tamamen kapatıp yeniden açarak tüm alt işlemlerin sonlandırılması.
+    2.  **Manuel Yöntem:** Windows komut satırında `netstat -ano | findstr :5000` komutu ile portu kullanan işlemin PID'sinin (Process ID) bulunması ve `taskkill /PID <PID> /F` komutu ile bu işlemin zorla sonlandırılması.
+- **Öğrenimler:** `EADDRINUSE` ("Address in use") hatasının ne anlama geldiği ve bir portun aynı anda sadece tek bir işlem tarafından kullanılabileceği anlaşıldı. Geliştirme ortamında karşılaşılan "hayalet" veya "zombi" işlemlerin nasıl tespit edilip sonlandırılacağı öğrenildi.
+
+---
+
+### 39. Gün: Geliştirme Ortamı Yönetimi ("Bu siteye ulaşılamıyor")
+
+- **Yapılanlar:** Frontend'e erişmeye çalışırken "Bu siteye ulaşılamıyor" hatası alındı ve hata ayıklandı.
+- **Karşılaşılan Sorunlar:** Hatanın, frontend geliştirme sunucusunun (`vite`) çalışmamasından kaynaklandığı anlaşıldı. Projenin hem backend hem de frontend olmak üzere iki ayrı sunucuya sahip olduğu ve ikisinin de aynı anda çalışması gerektiği pekiştirildi.
+- **Çıktılar:** Doğru çalışma akışı uygulandı:
+    1.  Bir terminalde `backend` klasörüne gidilip `npm run dev` ile API sunucusu başlatıldı.
+    2.  Ayrı bir ikinci terminalde `frontend` klasörüne gidilip `npm run dev` ile Vite sunucusu başlatıldı.
+- **Öğrenimler:** Modern bir full-stack uygulamanın genellikle birden fazla bağımsız süreçten (process) oluştuğu (API sunucusu, frontend geliştirme sunucusu vb.) ve hepsinin geliştirme sırasında aktif olması gerektiği anlaşıldı. VS Code'da birden fazla terminali yönetme pratiği yapıldı.
+
+---
+
+### 40. Gün: Berber Detay Sayfası ve Randevu Alma
+
+- **Yapılanlar:** Kullanıcıların berber listesinden bir berberi seçip, profil detaylarını görebileceği ve müsait saatlerinden birine randevu alabileceği tam bir akış oluşturuldu.
+- **Çıktılar:**
+    - `services/barberService.js` dosyasına, tek bir berberin detaylarını (`getBarberById`) ve belirli bir tarihteki müsaitlik durumunu (`getBarberAvailability`) getiren yeni fonksiyonlar eklendi.
+    - `services/appointmentService.js` adında, randevu oluşturma isteğini (`POST /api/appointments`) gönderen yeni bir servis modülü oluşturuldu.
+    - `components/AppointmentCalendar.jsx` adında, bir tarih seçici ve o tarihteki müsait saatleri listeleyen, tıklandığında randevu oluşturan yeniden kullanılabilir bir takvim bileşeni oluşturuldu.
+    - `pages/BarberDetailPage.jsx` adında, URL'den berber ID'sini alıp berberin profil bilgilerini ve `AppointmentCalendar` bileşenini gösteren yeni bir sayfa oluşturuldu.
+    - `App.jsx`'teki rota yapısı, `/barbers/:id` dinamik yolunu içerecek şekilde güncellendi.
+- **Öğrenimler:** `react-router-dom`'un `useParams` hook'u ile dinamik URL segmentlerinden (örn: `:id`) nasıl veri okunacağı öğrenildi. Bir bileşenin (takvim) başka bir bileşen (detay sayfası) içinde nasıl kullanıldığı ve aralarında `prop`'lar aracılığıyla nasıl veri aktarıldığı pratik edildi. Bir kullanıcı etkileşimiyle (saat seçimi) tetiklenen tam bir API akışının (müsaitlik kontrolü -> randevu oluşturma -> arayüzü güncelleme) frontend'de nasıl yönetileceği deneyimlendi.
+
+---
+
+### 41. Gün: Berber Randevu Yönetim Paneli
+
+- **Yapılanlar:** Berberlerin, kendilerine gelen randevu taleplerini listeleyebileceği, onaylayabileceği ve iptal edebileceği bir yönetim paneli oluşturuldu.
+- **Çıktılar:**
+    - `appointmentService.js` dosyasına, berberin randevularını getiren (`getMyBarberAppointments`) ve bir randevunun durumunu güncelleyen (`updateAppointmentStatus`) yeni fonksiyonlar eklendi.
+    - `pages/BarberDashboardPage.jsx` adında, berberin tüm randevularını listeleyen ve "Onayla"/"İptal Et" butonları ile durum güncellemesi yapabilen yeni bir sayfa bileşeni oluşturuldu.
+    - `components/BarberRoute.jsx` adında, bir rotanın sadece `barber` rolüne sahip kullanıcılar tarafından erişilmesini sağlayan yeni bir korumalı rota bileşeni oluşturuldu.
+    - `App.jsx` dosyası, `/dashboard` yolunu `BarberDashboardPage`'e yönlendirecek ve bu rotayı `BarberRoute` ile koruyacak şekilde güncellendi. Ayrıca, navigasyon menüsünde "Randevu Paneli" linki sadece berberler için görünür hale getirildi.
+- **Öğrenimler:** Frontend'de rol bazlı yetkilendirmenin nasıl uygulanacağı ve belirli arayüz elemanlarının veya sayfaların kullanıcının rolüne göre nasıl koşullu olarak render edileceği öğrenildi. Bir listedeki bir öğe güncellendiğinde, tüm listeyi yeniden çekmek yerine sadece o öğeyi lokal state'te güncelleyerek daha iyi bir kullanıcı deneyimi ve performans sağlanabileceği pratik edildi.
+
+---
+
+### 42. Gün: Berber Hizmet Yönetimi Arayüzü (CRUD)
+
+- **Yapılanlar:** Berberlerin, ciro takibi için gerekli olan kendi hizmetlerini (saç, sakal vb.) ve fiyatlarını ekleyip, düzenleyip, silebileceği bir yönetim arayüzü oluşturuldu.
+- **Çıktılar:**
+    - `services/serviceService.js` adında, hizmetler için CRUD (Create, Read, Update, Delete) operasyonlarını yürüten yeni bir servis modülü oluşturuldu.
+    - `pages/ServiceManagementPage.jsx` adında, berberin hizmetlerini listeleyen, yeni hizmet ekleme/düzenleme formu içeren ve silme işlemlerini gerçekleştiren yeni bir sayfa bileşeni oluşturuldu.
+    - `App.jsx` dosyası, `/manage-services` yolunu bu yeni sayfaya yönlendirecek ve `BarberRoute` ile koruyacak şekilde güncellendi.
+    - Navigasyon menüsüne, sadece berberler için görünür olan "Hizmet Yönetimi" linki eklendi.
+- **Öğrenimler:** Bir kaynak için tam bir CRUD arayüzünün React'te nasıl oluşturulacağı pratik edildi. Tek bir form bileşeninin hem "oluşturma" hem de "düzenleme" modları için nasıl yeniden kullanılabilir hale getirileceği öğrenildi. Kullanıcıya anlık geri bildirim sağlamak için bir API isteği sonrası tüm listeyi yeniden çekmenin (refetch) nasıl bir strateji olduğu görüldü.
+
+---
+
+### 43. Gün: Müşteri "Randevularım" Sayfası
+
+- **Yapılanlar:** Müşterilerin, geçmiş ve gelecek tüm randevularını listeleyebileceği bir "Randevularım" sayfası oluşturuldu.
+- **Çıktılar:**
+    - `appointmentService.js` dosyasına, müşterinin randevularını getiren (`getMyCustomerAppointments`) yeni bir fonksiyon eklendi.
+    - `pages/CustomerAppointmentsPage.jsx` adında, müşterinin randevularını listeleyen yeni bir sayfa bileşeni oluşturuldu.
+    - `App.jsx` dosyası, `/my-appointments` yolunu bu yeni sayfaya yönlendirecek şekilde güncellendi.
+    - Navigasyon menüsüne, tüm giriş yapmış kullanıcılar için görünür olan "Randevularım" linki eklendi.
+- **Öğrenimler:** Farklı kullanıcı rolleri için benzer ama farklı veri setleri sunan API endpoint'lerinin (berberin randevuları vs. müşterinin randevuları) frontend'de nasıl yönetileceği görüldü. Bir özelliğin tamamlanması için servis, bileşen ve rota katmanlarının bir arada nasıl çalıştığı pekiştirildi.
+
+---
+
+### 44. Gün: Randevu Tamamlama ve Ciroya İşleme Arayüzü
+
+- **Yapılanlar:** Berberin, onaylanmış bir randevuyu "tamamlandı" olarak işaretleyip, yapılan hizmeti ve ücreti seçerek ciroya işlemesini sağlayan bir arayüz oluşturuldu.
+- **Çıktılar:**
+    - `appointmentService.js` dosyasına, bir randevuyu tamamlama isteği gönderen `completeAppointment` fonksiyonu eklendi.
+    - `components/CompleteAppointmentModal.jsx` adında, berberin hizmetlerini listeleyen ve nihai fiyatı girmesine olanak tanıyan yeni bir modal bileşeni oluşturuldu.
+    - `BarberDashboardPage.jsx` güncellendi: Artık `confirmed` durumundaki randevular için bir "Tamamla" butonu gösteriyor. Bu butona tıklandığında, hizmet seçimi için `CompleteAppointmentModal` açılıyor.
+- **Öğrenimler:** Karmaşık bir kullanıcı aksiyonu için modal (dialog) pencerelerinin nasıl kullanılacağı öğrenildi. Bir ana bileşenin (sayfa), bir alt bileşene (modal) veri (`appointment` bilgisi) ve callback fonksiyonları (`onClose`, `onComplete`) geçirerek nasıl iletişim kurduğu pratik edildi. Bir form gönderimi sonrası, sayfanın tamamını yenilemeden sadece ilgili veriyi güncelleyerek akıcı bir kullanıcı deneyimi sağlamanın önemi anlaşıldı.
+
+---
+
+### 45. Gün: Ciro Raporları Dashboard'u
+
+- **Yapılanlar:** Berberlerin, günlük ve aylık cirolarını görebilecekleri bir raporlama ekranı oluşturuldu.
+- **Çıktılar:**
+    - `services/reportService.js` adında, backend'in `/api/reports/revenue` endpoint'ine istek atan yeni bir servis modülü oluşturuldu.
+    - `pages/RevenueDashboardPage.jsx` adında, ciro verilerini API'den çeken ve `StatCard` gibi alt bileşenler kullanarak görsel olarak sunan yeni bir sayfa bileşeni oluşturuldu.
+    - `App.jsx` dosyası, `/reports` yolunu bu yeni sayfaya yönlendirecek ve `BarberRoute` ile koruyacak şekilde güncellendi.
+    - Navigasyon menüsüne, sadece berberler için görünür olan "Ciro Raporları" linki eklendi.
+- **Öğrenimler:** API'den gelen veriyi alıp, anlamlı ve görsel olarak çekici bir şekilde kullanıcıya sunma pratiği yapıldı. Karmaşık bir sayfanın, daha küçük ve yeniden kullanılabilir bileşenlere (örn: `StatCard`) bölünerek nasıl daha yönetilebilir hale getirileceği anlaşıldı.
+
+---
+
+### 46. Gün: Uçtan Uca Test ve Eksik Özelliğin Tespiti
+
+- **Yapılanlar:** Müşterinin randevu alması ve berberin onaylaması senaryosu uçtan uca test edildi. Test sırasında, müşterinin berberin müsaitlik durumunu kontrol etmeye çalıştığında hata aldığı tespit edildi.
+- **Karşılaşılan Sorunlar:** Sorunun kök nedeninin, berberin profil sayfasında çalışma saatlerini girebileceği bir alan olmaması olduğu anlaşıldı. Bu eksiklik, backend'in müsaitlik hesaplaması yapmasını engelliyordu.
+- **Çıktılar:** `ProfilePage.jsx` bileşeni, berberlerin haftanın her günü için çalışma saatlerini ("09:00-19:00" veya "closed" formatında) girebilecekleri input alanları içerecek şekilde güncellendi. Bu sayede randevu alma akışındaki eksik halka tamamlandı.
+- **Öğrenimler:** Uçtan uca testin, bir özelliğin eksik veya hatalı kısımlarını ortaya çıkarmadaki kritik önemi anlaşıldı. Bir özelliğin çalışması için gerekli olan tüm veri giriş noktalarının kullanıcıya sunulması gerektiği pekiştirildi. React'te dinamik olarak oluşturulan form elemanlarının state'inin nasıl yönetileceği pratik edildi.
+
+---
+
+### 47. Gün: Backend Mimarisi İyileştirme (Refactoring)
+
+- **Yapılanlar:** Müşteri olarak berber detay sayfasına girerken alınan "Berber profili getirilemedi" hatası üzerine backend kod yapısı incelendi ve yeniden düzenlendi.
+- **Karşılaşılan Sorunlar:** Berberlerle ilgili halka açık API mantığının (`tümünü listele`, `tekini getir`, `müsaitliğini hesapla`) farklı controller dosyalarına dağılmış olduğu ve bu durumun hata takibini zorlaştırdığı tespit edildi.
+- **Çıktılar:**
+    - `controllers/barber.controller.js` adında yeni bir controller dosyası oluşturuldu.
+    - Berberlerle ilgili tüm halka açık mantık (`getAllBarbers`, `getBarberById`, `getBarberAvailability`) bu yeni dosyada merkezileştirildi.
+    - `api/routes/barbers.routes.js` dosyası, artık sadece bu yeni ve merkezi controller'ı kullanacak şekilde güncellendi.
+    - Bu yeniden düzenleme sonrası, berber detay sayfasındaki hata giderildi.
+- **Öğrenimler:** "Refactoring" (yeniden düzenleme) kavramının ne olduğu ve kod tekrarını azaltıp, okunabilirliği ve sürdürülebilirliği artırmadaki önemi anlaşıldı. Birbiriyle ilişkili iş mantıklarını tek bir sorumlu controller altında toplamanın (Single Responsibility Principle) kod organizasyonunu nasıl iyileştirdiği görüldü.
+
+---
+
+### 48. Gün: Refactoring Sonrası Hata Ayıklama (Module Not Found)
+
+- **Yapılanlar:** Backend sunucusu başlatılırken alınan `Error: Cannot find module '../../controllers/user.controller'` hatası çözüldü.
+- **Karşılaşılan Sorunlar:** 47. gündeki yeniden düzenleme (refactoring) sırasında, berberlerle ilgili fonksiyonların `barber.controller.js`'e taşınmasının ardından `user.controller.js` dosyasının silindiği, ancak bu dosyanın hala `/api/users/me` rotası tarafından kullanıldığı anlaşıldı.
+- **Çıktılar:** `backend/src/controllers/user.controller.js` dosyası, sadece `getMe` fonksiyonunu içerecek şekilde yeniden oluşturuldu. Bu, `user.routes.js` dosyasının bağımlılığını karşılayarak sunucunun başarıyla başlamasını sağladı.
+- **Öğrenimler:** Kod yeniden düzenlemesi (refactoring) yaparken, eski kod parçalarını silmeden önce projenin başka hangi bölümlerinin bu parçalara bağımlı olduğunu kontrol etmenin (dependency check) ne kadar önemli olduğu anlaşıldı. `MODULE_NOT_FOUND` hatasının, genellikle bir dosya yolu yanlışlığı veya silinmiş/taşınmış bir dosyadan kaynaklandığı pekiştirildi.
+
+---
+
+### 49. Gün: Refactoring Sonrası Hata Ayıklama (Undefined Middleware)
+
+- **Yapılanlar:** Backend sunucusu başlatılırken alınan `TypeError: Router.use() requires a middleware function but got a undefined` hatası çözüldü.
+- **Karşılaşılan Sorunlar:** Hatanın, `user.routes.js` dosyasının, `user.controller.js` içinde artık var olmayan `getProfile` fonksiyonunu çağırmaya çalışmasından kaynaklandığı tespit edildi. Fonksiyonun doğru adı `getMe` idi.
+- **Çıktılar:** `user.routes.js` dosyası, `userController.getProfile` çağrısını `userController.getMe` olarak düzeltecek şekilde güncellendi. Ayrıca, artık kullanılmayan eski bir test rotası (`/barber-dashboard`) da kod temizliği amacıyla kaldırıldı.
+- **Öğrenimler:** Kodun farklı parçaları arasındaki (rota ve controller gibi) isim ve imza tutarlılığının ne kadar önemli olduğu anlaşıldı. Hata mesajlarını dikkatlice okumanın, sorunun kaynağını (`undefined` bir fonksiyon çağrısı) hızlıca bulmayı nasıl sağladığı pratik edildi.
+
+---
+
+### 50. Gün: Ana Sayfa (Landing Page) Tasarımı
+
+- **Yapılanlar:** Giriş yapmış kullanıcıların karşılandığı ana sayfaya basit ve işlevsel bir tasarım yapıldı.
+- **Çıktılar:**
+    - `pages/HomePage.jsx` adında, kullanıcıyı ismiyle karşılayan, uygulamanın amacını açıklayan ve önemli sayfalara yönlendiren (Berberleri Görüntüle, Randevularım) butonlar içeren yeni bir sayfa bileşeni oluşturuldu.
+    - `App.jsx` dosyasındaki ana sayfa rotası (`/`), bu yeni `HomePage` bileşenini gösterecek şekilde güncellendi.
+- **Öğrenimler:** Kullanıcıyı karşılayan bir ana sayfanın, uygulama içindeki temel aksiyonlara hızlı erişim sağlayarak kullanıcı deneyimini nasıl iyileştirdiği görüldü. React'te temel sayfa düzeni ve stilizasyon için inline CSS'in nasıl kullanılabileceği pratik edildi.

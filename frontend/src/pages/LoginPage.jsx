@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
-const LoginPage = ({ setShowLogin }) => {
+const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     try {
       await login(email, password);
-      // Başarılı girişte, App.jsx'teki koşullu renderlama sayesinde
-      // uygulama otomatik olarak ana ekrana geçecek.
+      navigate('/'); // Başarılı girişte ana sayfaya yönlendir
     } catch (err) {
       setError(err.message);
     }
@@ -37,10 +38,7 @@ const LoginPage = ({ setShowLogin }) => {
         </button>
       </form>
       <p style={{ marginTop: '1rem', textAlign: 'center' }}>
-        Hesabın yok mu?{' '}
-        <button onClick={() => setShowLogin(false)} style={{ background: 'none', border: 'none', color: '#007bff', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
-          Kayıt ol
-        </button>
+        Hesabın yok mu? <Link to="/register">Kayıt ol</Link>
       </p>
     </div>
   );

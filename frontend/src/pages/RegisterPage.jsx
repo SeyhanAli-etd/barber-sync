@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { register } from '../services/authService';
 
-const RegisterPage = ({ setShowLogin }) => {
+const RegisterPage = () => {
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
@@ -10,6 +11,7 @@ const RegisterPage = ({ setShowLogin }) => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,9 +25,7 @@ const RegisterPage = ({ setShowLogin }) => {
       const data = await register(formData);
       setSuccess(data.message + ' Şimdi giriş yapabilirsiniz.');
       // 3 saniye sonra otomatik olarak giriş ekranına yönlendir
-      setTimeout(() => {
-        setShowLogin(true);
-      }, 3000);
+      setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
       setError(err.message);
     }
@@ -59,10 +59,7 @@ const RegisterPage = ({ setShowLogin }) => {
         <button type="submit" disabled={!!success} style={{ width: '100%', padding: '10px', background: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Kayıt Ol</button>
       </form>
       <p style={{ marginTop: '1rem', textAlign: 'center' }}>
-        Zaten bir hesabın var mı?{' '}
-        <button onClick={() => setShowLogin(true)} style={{ background: 'none', border: 'none', color: '#007bff', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
-          Giriş Yap
-        </button>
+        Zaten bir hesabın var mı? <Link to="/login">Giriş Yap</Link>
       </p>
     </div>
   );

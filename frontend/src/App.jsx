@@ -1,44 +1,79 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Routes, Route, Link, Outlet } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { NotificationProvider } from './context/NotificationContext';
 import NotificationDisplay from './components/NotificationDisplay';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import PrivateRoute from './components/PrivateRoute';
+import BarbersListPage from './pages/BarbersListPage';
+import BarberDashboardPage from './pages/BarberDashboardPage';
+import BarberRoute from './components/BarberRoute';
+import BarberDetailPage from './pages/BarberDetailPage';
+import ServiceManagementPage from './pages/ServiceManagementPage';
+import CustomerAppointmentsPage from './pages/CustomerAppointmentsPage';
+import RevenueDashboardPage from './pages/RevenueDashboardPage';
+import HomePage from './pages/HomePage';
+import ProfilePage from './pages/ProfilePage';
 
-// Kullanıcı giriş yaptığında gösterilecek olan ana uygulama bölümü
-function AuthenticatedApp() {
+// Giriş yapmış kullanıcılar için ana layout (yerleşim)
+function AppLayout() {
   const { user, logout } = useAuth();
   return (
-    // NotificationProvider, kimlik doğrulaması yapılmış uygulamanın içinde olmalı
-    // ki `useAuth` hook'unu kullanabilsin.
     <NotificationProvider>
       <NotificationDisplay />
-      <h1>Barber-Sync'e Hoş Geldiniz, {user?.full_name || 'Kullanıcı'}!</h1>
-      <button onClick={logout}>Çıkış Yap</button>
-      {/* Gelecekte buraya <Router>, <HomePage> gibi bileşenler gelecek */}
+      <nav>
+        <Link to="/">Ana Sayfa</Link> | <Link to="/barbers">Berberler</Link> |
+        {user?.role === 'barber' && (
+          <> <Link to="/dashboard">Randevu Paneli</Link> |{' '}
+             <Link to="/manage-services">Hizmet Yönetimi</Link> |{' '}
+             <Link to="/reports">Ciro Raporları</Link> |</>
+        )}
+        <Link to="/my-appointments">Randevularım</Link> |{' '}
+        <Link to="/profile">Profil</Link> |{' '}
+        <button onClick={logout}>Çıkış Yap</button>
+      </nav>
+      <hr />
+      <main>
+        {/* Alt rotalar (HomePage, BarbersListPage vb.) burada render edilecek */}
+        <Outlet />
+      </main>
     </NotificationProvider>
   );
 }
 
-// Kullanıcı giriş yapmadığında gösterilecek bölüm
-function UnauthenticatedApp() {
-  const [showLogin, setShowLogin] = useState(true);
-
-  return showLogin ? (
-    <LoginPage setShowLogin={setShowLogin} />
-  ) : (
-    <RegisterPage setShowLogin={setShowLogin} />
-  );
-}
-
 function App() {
-  const { isAuthenticated, loading } = useAuth();
+  const { loading } = useAuth();
 
   if (loading) {
     return <div>Yükleniyor...</div>; // İlk token kontrolü sırasında bekleme ekranı
   }
 
-  return isAuthenticated ? <AuthenticatedApp /> : <UnauthenticatedApp />;
+  return (
+    <Routes>
+      {/* Halka Açık Rotalar */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+
+      {/* Korumalı Rotalar (AppLayout'u kullanır) */}
+      <Route element={<PrivateRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/barbers" element={<BarbersListPage />} />
+          <Route path="/barbers/:id" element={<BarberDetailPage />} />
+          <Route path="/my-appointments" element={<CustomerAppointmentsPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+
+          {/* Sadece Berberlerin Erişebileceği Rotalar */}
+          <Route element={<BarberRoute />}>
+            <Route path="/dashboard" element={<BarberDashboardPage />} />
+            <Route path="/manage-services" element={<ServiceManagementPage />} />
+            <Route path="/reports" element={<RevenueDashboardPage />} />
+          </Route>
+        </Route>
+      </Route>
+    </Routes>
+  );
 }
 
 export default App;

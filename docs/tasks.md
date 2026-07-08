@@ -7,12 +7,14 @@ Bu dosya, projenin geliştirme görevlerini takip etmek için kullanılır.
 
 ### Frontend
 - [x] Proje iskeletini oluştur (Vite + React)
-- [ ] Ana sayfa tasarımını yap
+- [x] Sayfalar arası geçiş için routing altyapısını kur (React Router)
+- [x] Ana sayfa tasarımını yap
 - [x] Kayıt ve Giriş formlarını oluştur
-- [ ] Berber listeleme sayfasını oluştur
-- [ ] Berber detay ve randevu alma takvimi bileşenini oluştur
-- [ ] Müşteri "Randevularım" sayfasını (frontend) oluştur
-- [ ] Berber "Randevu Talepleri" panelini oluştur
+- [x] Berber listeleme sayfasını oluştur
+- [x] Berber detay ve randevu alma takvimi bileşenini oluştur
+- [x] Müşteri "Randevularım" sayfasını (frontend) oluştur
+- [x] Berber "Randevu Talepleri" panelini oluştur
+- [x] Kullanıcı profil sayfasını oluştur
 - [x] Bildirimleri gösterecek UI bileşenini ve altyapısını ekle
 
 ## ⏳ Üzerinde Çalışılan (In Progress)
@@ -41,8 +43,7 @@ Bu dosya, projenin geliştirme görevlerini takip etmek için kullanılır.
 - [x] **v2.0:** Randevuyu tamamlarken yapılan hizmeti ve ücreti kaydetme altyapısını kur (Backend & DB).
 - [x] **v2.0:** Berberin günlük ve aylık cirosunu hesaplayan API endpoint'ini oluştur (Backend).
 - [ ] **v2.0:** Berberin hizmetlerini yönetebileceği arayüzü oluştur (Frontend).
-- [ ] **v2.0:** Berberin randevu tamamlama ve hizmet seçme arayüzünü oluştur (Frontend).
-- [ ] **v2.0:** Berberin ciro raporlarını görebileceği dashboard ekranını oluştur (Frontend).
+- [x] **v2.0:** Berberin ciro raporlarını görebileceği dashboard ekranını oluştur (Frontend).
 
 ### v3.0 için Planlananlar (Gelişmiş Profil ve Etkileşim)
 

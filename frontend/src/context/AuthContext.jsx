@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { login as loginService } from '../services/authService';
+import { login as loginService, getMe } from '../services/authService';
 
 const AuthContext = createContext();
 
@@ -9,13 +9,22 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // TODO: Gelecekte burada token'ı bir /me endpoint'i ile doğrulayabiliriz.
-    // Şimdilik sadece localStorage'daki token'a güveniyoruz.
-    if (token) {
-      // Normalde token'ı decode edip user'ı set ederdik veya /me çağırısı yapardık.
-      // Şimdilik basit tutuyoruz.
-    }
-    setLoading(false);
+    const validateToken = async () => {
+      if (token) {
+        try {
+          const userData = await getMe(token);
+          setUser(userData);
+        } catch (error) {
+          // Token geçersiz veya süresi dolmuş olabilir.
+          console.error(error.message);
+          localStorage.removeItem('token');
+          setToken(null);
+          setUser(null);
+        }
+      }
+      setLoading(false);
+    };
+    validateToken();
   }, [token]);
 
   const login = async (email, password) => {
@@ -37,4 +46,3 @@ export const AuthProvider = ({ children }) => {
 };
 
 export default AuthContext;
-
