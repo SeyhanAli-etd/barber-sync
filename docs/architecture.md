@@ -79,7 +79,6 @@ Table appointments {
   customer_id uuid [ref: > users.id, not null]
   barber_id uuid [ref: > users.id, not null]
   appointment_time timestamp [not null]
-  duration_minutes integer [not null, default: 30]
   status appointment_status [not null, default: 'pending']
   notes text
   created_at timestamp [default: `now()`]
