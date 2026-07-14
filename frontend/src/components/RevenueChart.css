@@ -1,0 +1,10 @@
+.chart-container {
+  position: relative;
+  height: 400px;
+  width: 100%;
+  background-color: var(--bg-secondary);
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  margin-top: 2rem;
+}

@@ -1,0 +1,57 @@
+.list-page h2 {
+    margin-bottom: 2rem;
+}
+
+.list-container {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.list-item-card {
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-left: 5px solid var(--gold-accent);
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.list-item-card p {
+    margin: 0.25rem 0;
+}
+
+.list-item-card strong {
+    color: var(--text-muted);
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 16px;
+    color: var(--charcoal-bg);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.action-buttons .btn-confirm {
+    background-color: #2e7d32; /* Darker Green */
+}
+
+.action-buttons .btn-cancel {
+    background-color: #c62828; /* Darker Red */
+}
+
+.action-buttons .btn-complete {
+    background-color: #0277bd; /* Darker Blue */
+}

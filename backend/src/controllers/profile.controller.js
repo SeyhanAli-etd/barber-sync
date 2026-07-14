@@ -1,24 +1,38 @@
 // backend/src/controllers/profile.controller.js
 const BarberProfile = require('../models/barberProfile.model');
+const User = require('../models/user.model');
 
 // @route   PUT /api/profile/me
 // @desc    Create or update the current barber's profile
 // @access  Private (Barbers only)
 exports.upsertMyBarberProfile = async (req, res) => {
   try {
-    const { shop_name, address, working_hours, avatar_url } = req.body;
-    const user_id = req.user.id; // from authMiddleware
+    const { shop_name, address, working_hours, latitude, longitude } = req.body;
+    const user_id = req.user.id;
 
+    // FormData'dan gelen working_hours string olabilir, JSON'a çevir.
+    const parsedWorkingHours = typeof working_hours === 'string' ? JSON.parse(working_hours) : working_hours;
+
+    // 1. Avatarı SADECE yeni bir dosya varsa güncelle
+    if (req.file) {
+      const relative_path = `uploads/${req.file.filename}`;
+      await User.update(user_id, { avatar_url: relative_path });
+    }
+
+    // 2. Profil Bilgilerini Güncelle
     const profileData = {
       user_id,
-      shop_name,
-      address,
-      working_hours,
-      avatar_url,
+      shop_name: shop_name || null,
+      address: address || null,
+      working_hours: parsedWorkingHours,
+      latitude: latitude || null,
+      longitude: longitude || null,
     };
+    await BarberProfile.upsert(profileData);
 
-    const profile = await BarberProfile.upsert(profileData);
-    res.json(profile);
+    // 3. Güncel ve birleştirilmiş profili çekip arayüze gönder.
+    const fullProfile = await BarberProfile.findByUserId(user_id);
+    res.json(fullProfile);
   } catch (error) {
     console.error('Profil güncelleme hatası:', error);
     res.status(500).send('Sunucu Hatası');

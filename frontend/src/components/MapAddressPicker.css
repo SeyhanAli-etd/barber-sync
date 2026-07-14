@@ -1,0 +1,23 @@
+.map-address-picker-container {
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.map-picker {
+  height: 300px;
+  width: 100%;
+}
+
+.selected-coordinates {
+  padding: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.05);
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.map-hint {
+  padding: 0.75rem;
+}

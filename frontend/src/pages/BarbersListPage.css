@@ -1,0 +1,139 @@
+.barbers-list-page h2 {
+  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  color: var(--accent-primary);
+}
+
+.search-bar-container {
+  margin-bottom: 2rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 1rem;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 10px var(--glow-color);
+}
+
+.sort-options-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sort-options-container span {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.sort-btn {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.sort-btn:hover,
+.sort-btn.active {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+.barbers-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.barber-card-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.barber-card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.barber-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+  border-color: var(--accent-primary);
+}
+
+.barber-card-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.barber-card-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.barber-card h3 {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+}
+
+.barber-name-sub {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin: 0.25rem 0 0 0;
+}
+
+.barber-card-rating {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-left: auto; /* Puanı en sağa iter */
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.distance-info {
+  margin-left: 0.5rem;
+  font-weight: 500;
+  color: var(--accent-primary);
+  background-color: rgba(197, 164, 101, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.star-display {
+  color: var(--accent-primary);
+}
+
+.star-display .empty {
+  color: #444;
+}

@@ -8,12 +8,12 @@ const Service = require('../models/service.model');
 // @access  Private (Customers only)
 exports.createAppointment = async (req, res) => {
   try {
-    const { barber_id, appointment_time, notes } = req.body;
+    const { barber_id, service_id, appointment_time, notes } = req.body;
     const customer_id = req.user.id; // from authMiddleware
 
     // --- Temel Doğrulama ---
-    if (!barber_id || !appointment_time) {
-      return res.status(400).json({ message: 'Berber ID ve randevu zamanı zorunludur.' });
+    if (!barber_id || !appointment_time || !service_id) {
+      return res.status(400).json({ message: 'Berber, hizmet ve randevu zamanı zorunludur.' });
     }
 
     // UUID format kontrolü
@@ -36,12 +36,19 @@ exports.createAppointment = async (req, res) => {
     }
 
     // 2. Slotun berberin çalışma saatleri içinde olup olmadığını kontrol et
-    const barberProfile = await BarberProfile.findByUserId(barber_id);
+    const [barberProfile, service] = await Promise.all([
+        BarberProfile.findByUserId(barber_id),
+        Service.findById(service_id)
+    ]);
+
     if (!barberProfile || !barberProfile.working_hours) {
       return res.status(404).json({ message: 'Berber profili veya çalışma saatleri bulunamadı.' });
     }
+    if (!service) {
+        return res.status(404).json({ message: 'Seçilen hizmet bulunamadı.' });
+    }
 
-    const dayOfWeek = appointmentDate.toLocaleString('en-US', { weekday: 'long' }).toLowerCase();
+    const dayOfWeek = appointmentDate.toLocaleString('en-US', { weekday: 'long', timeZone: 'UTC' }).toLowerCase();
     const workingHoursToday = barberProfile.working_hours[dayOfWeek];
 
     if (!workingHoursToday || workingHoursToday.toLowerCase() === 'closed') {
@@ -49,16 +56,26 @@ exports.createAppointment = async (req, res) => {
     }
 
     const [startTimeStr, endTimeStr] = workingHoursToday.split('-');
-    const appointmentTimeOnly = appointmentDate.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit', hour12: false });
-    
-    if (appointmentTimeOnly < startTimeStr || appointmentTimeOnly >= endTimeStr) {
-        return res.status(400).json({ message: 'Seçilen saat berberin çalışma saatleri dışındadır.' });
+    const [startHour, startMinute] = startTimeStr.split(':').map(Number);
+    const [endHour, endMinute] = endTimeStr.split(':').map(Number);
+
+    const appointmentHour = appointmentDate.getUTCHours();
+    const appointmentMinute = appointmentDate.getUTCMinutes();
+
+    const appointmentStartMinutes = appointmentHour * 60 + appointmentMinute;
+    const openingMinutes = startHour * 60 + startMinute;
+    const closingMinutes = endHour * 60 + endMinute;
+    const appointmentEndMinutes = appointmentStartMinutes + service.duration_minutes;
+
+    if (appointmentStartMinutes < openingMinutes || appointmentEndMinutes > closingMinutes) {
+        return res.status(400).json({ message: `Seçilen saat (${appointmentHour.toString().padStart(2, '0')}:${appointmentMinute.toString().padStart(2, '0')}) berberin çalışma saatleri (${workingHoursToday}) dışındadır veya hizmet süresi sığmamaktadır.` });
     }
 
     // --- Randevu Oluşturma ---
     const newAppointment = await Appointment.create({
       customer_id,
       barber_id,
+      service_id,
       appointment_time,
       notes,
     });

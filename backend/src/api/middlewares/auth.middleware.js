@@ -23,7 +23,7 @@ module.exports = function(req, res, next) {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // 3. Doğrulanmış kullanıcı bilgisini request'e ekle
-    req.user = decoded.user;
+    req.user = decoded; // payload'un tamamını ekle (id ve role içerir)
     
     // 4. Sonraki adıma geç
     next();

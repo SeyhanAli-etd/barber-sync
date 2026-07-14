@@ -465,6 +465,17 @@ Bu doküman, "Barber-Sync" projesi geliştirme sürecinde yapılan günlük çal
 
 ---
 
+### 39. Gün: Geliştirme Ortamı Yönetimi ("Bu siteye ulaşılamıyor")
+
+- **Yapılanlar:** Frontend'e erişmeye çalışırken "Bu siteye ulaşılamıyor" hatası alındı ve hata ayıklandı.
+- **Karşılaşılan Sorunlar:** Hatanın, frontend geliştirme sunucusunun (`vite`) çalışmamasından kaynaklandığı anlaşıldı. Projenin hem backend hem de frontend olmak üzere iki ayrı sunucuya sahip olduğu ve ikisinin de aynı anda çalışması gerektiği pekiştirildi.
+- **Çıktılar:** Doğru çalışma akışı uygulandı:
+    1.  Bir terminalde `backend` klasörüne gidilip `npm run dev` ile API sunucusu başlatıldı.
+    2.  Ayrı bir ikinci terminalde `frontend` klasörüne gidilip `npm run dev` ile Vite sunucusu başlatıldı.
+- **Öğrenimler:** Modern bir full-stack uygulamanın genellikle birden fazla bağımsız süreçten (process) oluştuğu (API sunucusu, frontend geliştirme sunucusu vb.) ve hepsinin geliştirme sırasında aktif olması gerektiği anlaşıldı. VS Code'da birden fazla terminali yönetme pratiği yapıldı.
+
+---
+
 ### 40. Gün: Berber Detay Sayfası ve Randevu Alma
 
 - **Yapılanlar:** Kullanıcıların berber listesinden bir berberi seçip, profil detaylarını görebileceği ve müsait saatlerinden birine randevu alabileceği tam bir akış oluşturuldu.
@@ -584,3 +595,333 @@ Bu doküman, "Barber-Sync" projesi geliştirme sürecinde yapılan günlük çal
     - `pages/HomePage.jsx` adında, kullanıcıyı ismiyle karşılayan, uygulamanın amacını açıklayan ve önemli sayfalara yönlendiren (Berberleri Görüntüle, Randevularım) butonlar içeren yeni bir sayfa bileşeni oluşturuldu.
     - `App.jsx` dosyasındaki ana sayfa rotası (`/`), bu yeni `HomePage` bileşenini gösterecek şekilde güncellendi.
 - **Öğrenimler:** Kullanıcıyı karşılayan bir ana sayfanın, uygulama içindeki temel aksiyonlara hızlı erişim sağlayarak kullanıcı deneyimini nasıl iyileştirdiği görüldü. React'te temel sayfa düzeni ve stilizasyon için inline CSS'in nasıl kullanılabileceği pratik edildi.
+
+---
+
+### 52. Gün: 3D Ana Sayfa Hata Ayıklaması (Module Not Found)
+
+- **Yapılanlar:** 3D ana sayfa oluşturulurken alınan `Failed to resolve import "../components/3d/BarberChair"` hatası çözüldü.
+- **Karşılaşılan Sorunlar:** Hatanın, `BarberChair.jsx` bileşeninin yanlışlıkla `pages` klasörü içine oluşturulmasından kaynaklandığı tespit edildi. `HomePage.jsx`, bu bileşeni `components/3d/` klasöründe arıyordu.
+- **Çıktılar:** `frontend/src/components/3d` klasörü oluşturuldu ve `BarberChair.jsx` dosyası bu doğru konuma taşındı. Bu işlem, Vite'ın modülü doğru bir şekilde bulmasını sağlayarak hatayı giderdi.
+- **Öğrenimler:** React projelerinde dosya ve klasör organizasyonunun ne kadar önemli olduğu ve `import` yollarının dosya konumlarıyla tam olarak eşleşmesi gerektiği anlaşıldı. `MODULE_NOT_FOUND` veya `Failed to resolve import` gibi hataların genellikle dosya yolu yanlışlıklarından kaynaklandığı pekiştirildi.
+
+---
+
+### 54. Gün: Arayüz İyileştirmeleri (Responsive Navigasyon ve Video Arka Planı)
+
+- **Yapılanlar:**
+    - Halka açık ana sayfada (`PublicLandingPage`) büyük ekranlarda navigasyon menüsündeki butonların kaybolması sorunu çözüldü.
+    - Giriş yapmış kullanıcıların gördüğü 3D ana sayfaya (`HomePage`) arka plan video desteği eklendi.
+- **Karşılaşılan Sorunlar:**
+    - Navigasyon barının `position: absolute` ve `width: 100%` özelliklerinin, üst container'da `position: relative` olmamasından dolayı sayfanın genel yerleşiminden daha geniş bir alana yayılması ve elemanların kaybolmasına neden olduğu tespit edildi.
+- **Çıktılar:**
+    - `PublicLandingPage.css` dosyasına, ana container'a `position: relative` eklenerek navbar'ın doğru şekilde kapsanması sağlandı.
+    - `HomePage.jsx` dosyasına, sayfa arka planında oynatılacak bir `<video>` elementi eklendi.
+    - `HomePage.css` dosyası, videoyu ekranı kaplayacak şekilde sabitlemek, üzerine okunabilirliği artırmak için karartma efekti eklemek ve diğer katmanların (`canvas`, metin) `z-index` değerlerini doğru şekilde ayarlamak için güncellendi.
+- **Öğrenimler:** CSS'te `position: absolute` özelliğinin, en yakın `position: relative` (veya `absolute`, `fixed`) atasına göre konumlandığı pekiştirildi. `z-index` ile katman yönetiminin, özellikle video, canvas ve metin gibi birden çok üst üste binen elementle çalışırken ne kadar önemli olduğu anlaşıldı. `object-fit: cover` ve `transform: translate(-50%, -50%)` gibi modern CSS teknikleriyle tam ekran arka plan videolarının nasıl oluşturulacağı öğrenildi.
+
+---
+
+### 55. Gün: Profesyonel Animasyon ve Etkileşim İyileştirmeleri
+
+- **Yapılanlar:**
+    - 3D ana sayfadaki berber koltuğuna, fare ile üzerine gelindiğinde tepki veren bir animasyon eklendi.
+    - Sayfa kaydırıldıkça beliren metinlerin animasyonu daha akıcı ve profesyonel hale getirildi.
+- **Çıktılar:**
+    - `HomePage.jsx` bileşeni, `useState` ve `onPointerOver`/`onPointerOut` olay yöneticileri kullanılarak güncellendi. Artık fare koltuğun üzerine geldiğinde, `gsap` ile koltuğun ölçeği pürüzsüz bir şekilde büyüyor ve imleç "pointer" şeklini alıyor.
+    - Metin animasyonları, `gsap`'in `stagger` (kademeli) özelliğini kullanacak şekilde yeniden yazıldı. Bu sayede başlık ve paragraflar daha estetik bir şekilde art arda beliriyor.
+    - GSAP `ScrollTrigger`'ın tetikleyici (`trigger`) elementinin, animasyonun doğru çalışması için kaydırılabilir ana container olarak ayarlanması sağlandı.
+- **Öğrenimler:** React ve Three.js (react-three-fiber) ortamında kullanıcı etkileşimlerine (fare olayları gibi) nasıl tepki verileceği öğrenildi. GSAP animasyon kütüphanesinin, 3D nesnelerin özelliklerini (örn: `scale`) zamanla pürüzsüzce değiştirmek için nasıl kullanıldığı pratik edildi. `stagger` gibi ileri düzey animasyon tekniklerinin, kullanıcı arayüzüne nasıl daha profesyonel bir his kattığı anlaşıldı.
+
+---
+
+### 56. Gün: Mimari Değişiklik (3D Ana Sayfanın Halka Açık Hale Getirilmesi)
+
+- **Yapılanlar:** Kullanıcı deneyimini iyileştirmek amacıyla önemli bir mimari değişiklik yapıldı. Daha önce sadece giriş yapmış kullanıcıların gördüğü 3D animasyonlu ana sayfa, artık tüm ziyaretçileri karşılayan halka açık ana sayfa (`/`) olarak yeniden konumlandırıldı. Giriş yapmış kullanıcılar ise artık doğrudan işlevsel bir sayfaya (`/booking`) yönlendiriliyor.
+- **Çıktılar:**
+    - `PublicLandingPage.jsx` bileşeni, `HomePage.jsx`'in tüm 3D sahne, video ve kaydırma animasyonu mantığını içerecek şekilde tamamen yeniden yapılandırıldı. Eski statik "hero" bölümü, bu yeni dinamik ve etkileşimli sahne ile değiştirildi.
+    - `App.jsx` dosyasındaki rota yapısı güncellendi: Ana rota (`/`) artık bu yeni ve zenginleştirilmiş `PublicLandingPage`'i gösteriyor.
+    - `PrivateRoute.jsx` güncellendi: Artık kimliği doğrulanmamış kullanıcıları `/login` sayfasına yönlendiriyor.
+    - `AppLayout.jsx` içindeki, giriş yapmış kullanıcıların ana sayfasını (`/`) diğer sayfalardan farklı kılan koşullu stil mantığı kaldırıldı, çünkü bu sayfa artık `AppLayout` dışında.
+- **Öğrenimler:** Bir uygulamanın "vitrin" (halka açık sayfa) ve "uygulama içi" (giriş yapılmış panel) deneyimlerinin nasıl ayrıştırılacağı ve kullanıcı yolculuğuna göre nasıl yeniden düzenleneceği anlaşıldı. React Router'da rota yapısını değiştirerek ve `Navigate` bileşenini kullanarak kullanıcıları oturum durumlarına ve hedeflerine göre doğru sayfalara yönlendirmenin önemi pekiştirildi. Büyük bir bileşenin (HomePage) mantığının ve JSX'inin başka bir bileşene (PublicLandingPage) nasıl entegre edileceği (refactoring) pratik edildi.
+
+---
+
+### 57. Gün: Kritik Hata Ayıklama (Yönlendirme ve Render Sorunları)
+
+- **Yapılanlar:** Bir önceki mimari değişiklik sonrası ortaya çıkan iki kritik hata çözüldü: 1) Ana sayfada 3D modelin "siyah bir kare" olarak görünmesi. 2) Kullanıcı giriş yaptıktan sonra uygulama paneli yerine tekrar ana sayfaya yönlendirilmesi.
+- **Karşılaşılan Sorunlar:**
+    - "Siyah kare" sorununun, 3D modelin yerini tutan geçici objenin (placeholder) materyalinin çok karanlık olmasından ve yeterince aydınlatılamamasından kaynaklandığı tespit edildi.
+    - Yönlendirme sorununun, `LoginPage` bileşeninin başarılı giriş sonrası kullanıcıyı yanlışlıkla ana sayfaya (`/`) yönlendirmesinden kaynaklandığı anlaşıldı.
+- **Çıktılar:**
+    - `BarberChair.jsx` dosyasındaki placeholder'ın materyali, hata ayıklamayı kolaylaştırmak için parlak ve tel kafes bir görünüme kavuşturuldu.
+    - `LoginPage.jsx` dosyası, başarılı giriş sonrası kullanıcıyı doğru bir şekilde uygulama paneline (`/booking`) yönlendirecek şekilde düzeltildi/oluşturuldu.
+    - Artık tamamen gereksiz olan `HomePage.jsx` dosyası projeden silinerek kod temizliği yapıldı.
+    - `App.jsx` içindeki ana logo linki, giriş yapmış kullanıcıları doğru panele yönlendirecek şekilde güncellendi.
+- **Öğrenimler:** Büyük refactoring işlemleri sonrası uçtan uca test yapmanın ne kadar kritik olduğu anlaşıldı. Bir bileşenin görsel olarak beklenmedik şekilde render edilmesinin (siyah kare) aydınlatma, materyal veya ölçekleme sorunlarından kaynaklanabileceği öğrenildi. Kullanıcı kimlik doğrulama akışlarında, başarılı bir işlem sonrası yönlendirmenin (navigation) kullanıcı deneyiminin temel bir parçası olduğu ve doğru hedefe yapılması gerektiği pekiştirildi.
+
+---
+
+### 58. Gün: Kritik Hata Ayıklama (Uygulama Çökmesi - "Siyah Ekran")
+
+- **Yapılanlar:** Uygulama başlatıldığında karşılaşılan "siyah ekran" sorunu çözüldü.
+- **Karşılaşılan Sorunlar:** Sorunun, bir önceki mimari değişiklik sırasında `App.jsx` dosyasından `PublicLandingPage` bileşeninin import satırının yanlışlıkla silinmesinden veya eklenmemesinden kaynaklandığı tespit edildi. Bu durum, React'in ana rotada (`/`) hangi bileşeni render edeceğini bilememesine ve uygulamanın tamamen çökmesine neden oluyordu.
+- **Çıktılar:** `App.jsx` dosyasına, `PublicLandingPage` bileşenini import eden `import PublicLandingPage from './pages/PublicLandingPage';` satırı eklendi.
+- **Öğrenimler:** Büyük refactoring veya mimari değişiklikler sonrası, bağımlılıkların (özellikle `import` ifadelerinin) doğru bir şekilde güncellenmesinin ne kadar kritik olduğu anlaşıldı. "Siyah ekran" gibi genel hataların, genellikle uygulamanın en üst seviyesindeki bir render veya import hatasından kaynaklanabileceği ve geliştirici konsolundaki hata mesajlarının bu tür sorunları bulmak için ilk bakılacak yer olduğu pekiştirildi.
+
+---
+
+### 59. Gün: Kritik Hata Ayıklama ("Hizmetler Getirilmedi" Sorunu)
+
+- **Yapılanlar:** "Randevu Al" sayfasında, bir berber seçildikten sonra ortaya çıkan "hizmetler getirilmedi" hatası çözüldü.
+- **Karşılaşılan Sorunlar:** Sorunun kök nedeninin, seçilen bir berberin hizmetlerini listeleyecek halka açık bir API endpoint'inin bulunmaması olduğu tespit edildi.
+- **Çıktılar:**
+    - **Backend:** Yeni bir API endpoint'i oluşturmak yerine, mevcut `GET /api/barbers/:id` endpoint'i, berberin profil bilgileriyle birlikte hizmet listesini de döndürecek şekilde güncellendi. Bu, `barberProfile.model.js` dosyasındaki `findByUserId` fonksiyonunun `Promise.all` ile iki sorguyu paralel çalıştırmasıyla sağlandı.
+    - **Frontend:** `services/barberService.js` ve `services/appointmentService.js` adında yeni servis modülleri oluşturuldu.
+    - **Frontend:** `pages/BookingPage.jsx` bileşeni, bu yeni servisleri kullanarak berberleri listeleyen, seçilen berberin hizmetlerini doğru bir şekilde gösteren ve randevu alma akışını yöneten sağlam bir yapıyla baştan yazıldı.
+- **Öğrenimler:** Bir API tasarlarken, birbiriyle ilişkili verileri (profil ve hizmetler gibi) tek bir istekte döndürmenin, ağ trafiğini azaltarak performansı nasıl artırabileceği anlaşıldı. `Promise.all` kullanarak birden fazla asenkron veritabanı sorgusunu paralel olarak çalıştırmanın backend performansına olumlu etkisi görüldü. React'te karmaşık bir sayfanın state yönetiminin (seçimler, yüklenme durumu, hata durumu) nasıl dikkatli bir şekilde yapılması gerektiği pratik edildi.
+
+---
+
+### 61. Gün: Frontend Hata Ayıklama (Missing Dependency - `axios`)
+
+- **Yapılanlar:** Frontend'de API servis katmanı oluşturulduktan sonra karşılaşılan `Failed to resolve import "axios"` hatası çözüldü.
+- **Karşılaşılan Sorunlar:** Yeni oluşturulan API servis katmanının (`api.js`, `barberService.js` vb.) `axios` paketini kullandığı, ancak bu paketin `frontend` projesine hiç yüklenmediği (`package.json` dosyasında eksik olduğu) tespit edildi.
+- **Çıktılar:** `frontend` klasöründe `npm install axios` komutu çalıştırılarak eksik bağımlılık projeye eklendi ve sorun giderildi.
+- **Öğrenimler:** Bir projenin `package.json` dosyasında listelenmeyen bir paketi `import` etmeye çalışmanın `Failed to resolve import` hatasına yol açtığı anlaşıldı. Frontend projelerinde dış kütüphaneleri kullanmadan önce `npm install` ile yüklenmesi gerektiği pekiştirildi. Bağımlılık yönetiminin, projenin sağlıklı bir şekilde çalışması için temel bir gereklilik olduğu kavrandı.
+
+---
+
+### 62. Gün: Kritik Hata Ayıklama (Beyaz Ekran - Eksik Fonksiyon)
+
+- **Yapılanlar:** "Randevu Al" sayfasına girildiğinde karşılaşılan "beyaz ekran" (uygulama çökmesi) sorunu çözüldü.
+- **Karşılaşılan Sorunlar:** Tarayıcı geliştirici konsolu incelendiğinde, hatanın `AppointmentCalendar` bileşeninin, `barberService.js` içinde bulunmayan `getBarberAvailability` fonksiyonunu import etmeye çalışmasından kaynaklandığı tespit edildi. Bu, bir "module export not found" hatasına ve React render döngüsünün çökmesine neden oluyordu.
+- **Çıktılar:** `frontend/src/services/barberService.js` dosyasına, backend'in `/api/barbers/:id/availability` endpoint'ine istek atan eksik `getBarberAvailability` fonksiyonu eklendi. Fonksiyon, berber ID'si, tarih ve hizmet süresini parametre olarak alacak şekilde doğru bir şekilde implemente edildi.
+- **Öğrenimler:** "Beyaz ekran" gibi genel uygulama çökmelerinin, genellikle bir JavaScript runtime hatasından (örn: var olmayan bir fonksiyonu çağırmak) kaynaklandığı anlaşıldı. Tarayıcı geliştirici konsolunun, bu tür hataların kaynağını bulmak için en önemli araç olduğu pekiştirildi. Kodun farklı modülleri (bileşen ve servis gibi) arasındaki bağımlılıkların ve fonksiyon imzalarının tutarlı olmasının önemi kavrandı.
+
+---
+
+### 60. Gün: Frontend Hata Ayıklama (Module Not Found - Missing API Config)
+
+- **Yapılanlar:** Frontend'de API servis dosyaları oluşturulduktan sonra karşılaşılan `Failed to resolve import "./api"` hatası çözüldü.
+- **Karşılaşılan Sorunlar:** `appointmentService.js` ve `barberService.js` gibi yeni servis dosyalarının, merkezi bir API yapılandırma modülüne (`api.js`) bağımlı olduğu, ancak bu dosyanın hiç oluşturulmadığı tespit edildi.
+- **Çıktılar:** `frontend/src/services/api.js` adında yeni bir dosya oluşturuldu. Bu dosya, `axios` kullanarak backend'in temel URL'sini (`baseURL`) ayarlayan ve `localStorage`'dan aldığı JWT'yi her isteğin `Authorization` başlığına otomatik olarak ekleyen bir "interceptor" (araya girici) içeren merkezi bir API istemcisi tanımlar.
+- **Öğrenimler:** Frontend projelerinde, API çağrılarını yönetmek için merkezi ve yeniden kullanılabilir bir servis katmanı oluşturmanın önemi anlaşıldı. `axios` interceptor'larının, her API isteğine token ekleme gibi tekrarlayan görevleri otomatikleştirmek için nasıl güçlü bir araç olduğu öğrenildi. `MODULE_NOT_FOUND` veya `Failed to resolve import` hatalarının, sadece dosya yolu yanlışlıklarından değil, aynı zamanda hiç oluşturulmamış modüllerden de kaynaklanabileceği pekiştirildi.
+
+---
+
+### 63. Gün: Hata Ayıklama ("Randevu Al" Sayfasında Veri Yükleme Sorunu)
+
+- **Yapılanlar:** "Randevu Al" sayfasında, bir berber seçildiğinde tarih ve saat seçim panelinin görünmemesi sorunu çözüldü.
+- **Karşılaşılan Sorunlar:** Tarayıcı geliştirici konsolu incelendiğinde, hatanın `BookingPage.jsx` bileşeninin, `barberService.js` içinde bulunmayan `getBarberById` fonksiyonunu çağırmaya çalışmasından kaynaklandığı tespit edildi. Bu, bir "module export not found" hatasına ve sayfanın çökmesine neden oluyordu.
+- **Çıktılar:**
+    - `frontend/src/services/barberService.js` dosyasına, backend'in `/api/barbers/:id` endpoint'ine istek atan eksik `getBarberById` fonksiyonu eklendi.
+    - `BookingPage.jsx` bileşeni, berber seçimi sırasında olası API hatalarını daha iyi yönetmek ve kullanıcıya geri bildirimde bulunmak için `try...catch` bloğu ve hata state'i ile sağlamlaştırıldı.
+- **Öğrenimler:** Bir kullanıcı etkileşimiyle tetiklenen asenkron veri yükleme işlemlerinde, hem yüklenme (loading) hem de hata (error) durumlarını kullanıcı arayüzüne yansıtmanın önemi anlaşıldı. Bir özelliğin farklı parçalarının (API servisi ve UI bileşeni) birbiriyle tutarlı olması gerektiği ve eksik bir fonksiyonun tüm akışı nasıl kırabileceği pratik olarak görüldü.
+
+---
+
+### 64. Gün: Hata Ayıklama (Duplicated Export)
+
+- **Yapılanlar:** `frontend/src/services/barberService.js` dosyasında `Duplicated export 'getBarberById'` hatası çözüldü.
+- **Karşılaşılan Sorunlar:** Hatanın, `getBarberById` fonksiyonunun aynı dosya içinde iki kez tanımlanıp dışa aktarılmaya çalışılmasından kaynaklandığı tespit edildi.
+- **Çıktılar:** `barberService.js` dosyasındaki tekrar eden `getBarberById` fonksiyon tanımı kaldırıldı.
+- **Öğrenimler:** JavaScript modüllerinde aynı isimde birden fazla dışa aktarımın mümkün olmadığı ve bu tür hataların derleme sürecini nasıl durdurabileceği anlaşıldı. Kod düzenlemesi sırasında dikkatli olmanın ve linter/derleyici hatalarını dikkatle okumanın önemi pekiştirildi.
+
+---
+
+### 65. Gün: Çok Katmanlı Hata Ayıklama ("Seçim Yapılamıyor" Sorunu)
+
+- **Yapılanlar:** "Randevu Al" sayfasında berber, hizmet ve tarih seçimlerinin yapılamamasına neden olan bir dizi hata giderildi.
+- **Karşılaşılan Sorunlar:**
+    1.  **Ana Sorun:** Backend'in, berber listesini (`/api/barbers`) döndürürken berber kimliğini `user_id` olarak, tek bir berber detayını (`/api/barbers/:id`) döndürürken ise `id` olarak adlandırdığı tespit edildi. Bu tutarsızlık, frontend'in seçilen berberi tanıyamamasına ve hizmetleri getirememesine neden oluyordu.
+    2.  **Tarih Hatası:** `AppointmentCalendar` bileşenindeki tarih değiştirme fonksiyonunun, farklı saat dilimlerindeki kullanıcılar için tarihi yanlış hesaplayarak bir gün geri atmasına neden olduğu bulundu.
+- **Çıktılar:**
+    - **Backend:** `barberProfile.model.js` dosyasındaki `findAll` fonksiyonu, `u.id as user_id` yerine `u.id as id` kullanacak şekilde güncellenerek API tutarlılığı sağlandı.
+    - **Frontend:** `AppointmentCalendar.jsx` bileşenindeki `handleDateChange` ve `toYYYYMMDD` fonksiyonları, saat dilimi sorunlarını ortadan kaldıran daha sağlam bir mantıkla yeniden yazıldı. Ayrıca, `createAppointment` çağrısındaki gereksiz `token` parametresi kaldırıldı.
+- **Öğrenimler:** Frontend ve backend arasında veri yapılarının ve alan adlarının tutarlı olmasının ne kadar kritik olduğu anlaşıldı. JavaScript'te tarih ve saat dilimi (timezone) yönetiminin karmaşıklığı ve `toISOString()`'in UTC tabanlı çalışmasının potansiyel yan etkileri pratik olarak görüldü. Bir kullanıcı şikayetinin ("seçemiyorum" gibi) altında yatan birden çok teknik sorunun nasıl bir arada bulunabileceği ve sistematik bir şekilde ayıklanması gerektiği deneyimlendi.
+
+---
+
+### 66. Gün: Hata Ayıklama (403 Forbidden - Yetkilendirme Hatası)
+
+- **Yapılanlar:** Müşteri olarak "Randevularım" sayfasına girildiğinde alınan `Request failed with status code 403` hatası çözüldü.
+- **Karşılaşılan Sorunlar:** Hatanın, `CustomerAppointmentsPage` bileşeninin yanlışlıkla berberlere özel olan `getMyBarberAppointments` servis fonksiyonunu çağırmasından kaynaklandığı tespit edildi. Backend, `roleMiddleware('barber')` kontrolü sayesinde bu isteği doğru bir şekilde reddediyordu.
+- **Çıktılar:** `CustomerAppointmentsPage.jsx` dosyasındaki API çağrısı, doğru olan `getMyCustomerAppointments` fonksiyonunu kullanacak şekilde düzeltildi.
+- **Öğrenimler:** Rol bazlı yetkilendirmenin hem backend (erişimi engelleme) hem de frontend (doğru API'yi çağırma) katmanlarında doğru bir şekilde uygulanmasının önemi anlaşıldı. `403 Forbidden` hatasının, kimliğin doğrulanmış ancak istenen eylem için yetkinin olmaması durumunda döndürüldüğü pekiştirildi.
+
+---
+
+### 67. Gün: Hata Ayıklama (400 Bad Request - Eksik Veri)
+
+- **Yapılanlar:** Randevu oluşturma sırasında alınan `Request failed with status code 400` hatası çözüldü.
+- **Karşılaşılan Sorunlar:** Hatanın, frontend'in randevu oluşturma isteği (`POST /api/appointments`) gönderirken, seçilen hizmetin ID'sini (`service_id`) isteğin gövdesine eklememesinden kaynaklandığı tespit edildi. Backend, ciro takibi özelliği sonrası bu bilgiyi zorunlu hale getirmişti.
+- **Çıktılar:** `backend/src/controllers/appointment.controller.js` dosyasındaki `createAppointment` fonksiyonu, `req.body`'den `service_id`'yi de okuyacak ve veritabanına kaydedilecek veriye ekleyecek şekilde güncellendi.
+- **Öğrenimler:** `400 Bad Request` hatasının genellikle istemcinin sunucuya eksik veya hatalı formatta veri göndermesi durumunda ortaya çıktığı anlaşıldı. Frontend ve backend arasında veri sözleşmesinin (API contract) tutarlı olmasının ve bir tarafta yapılan bir değişikliğin diğer tarafı da etkileyeceğinin önemi pekiştirildi.
+
+---
+
+### 70. Gün: Kullanıcı Deneyimi İyileştirmesi (Halka Açık Ana Sayfa)
+
+- **Yapılanlar:** Halka açık ana sayfadaki (`PublicLandingPage`) kullanıcı akışı ve içeriği, kullanıcıları platformu kullanmaya teşvik edecek şekilde yeniden düzenlendi.
+- **Karşılaşılan Sorunlar:** Sayfanın en altındaki statik "Booking" bölümünün, sayfanın genel akışına uymadığı ve kullanıcıya bir değer sunmadığı tespit edildi.
+- **Çıktılar:**
+    - `PublicLandingPage.jsx` dosyasından anlamsız "Booking" bölümü kaldırıldı.
+    - Yerine, "Neden Barber-Sync?" başlığı altında, platformun hem müşteriler hem de berberler için faydalarını (Kolay Randevu, İş Yönetimi, Anında Bildirimler) vurgulayan üç adet özellik kartı içeren yeni bir bölüm eklendi.
+    - `PublicLandingPage.css` dosyası, bu yeni bölümü ve kartları modern bir tasarımla stilize edecek şekilde güncellendi.
+- **Öğrenimler:** Bir "landing page" (karşılama sayfası) tasarımında, her bölümün belirli bir amacı olması (bilgi verme, teşvik etme vb.) ve kullanıcıyı hedeflenen bir eyleme (kayıt olma, giriş yapma) yönlendirmesi gerektiği anlaşıldı. Özellikleri, fayda odaklı kısa metinler ve ikonlarla sunmanın (feature cards), bir ürünün değer önerisini hızlı ve etkili bir şekilde iletmek için güçlü bir yöntem olduğu görüldü.
+
+---
+
+### 71. Gün: Ana Sayfa Animasyonunu Yenileme (Yatay Kaydırma)
+
+- **Yapılanlar:** Ana karşılama sayfasındaki dikey kaydırma animasyonu, daha modern ve "yeni nesil" bir yatay kaydırma animasyonu ile değiştirildi.
+- **Çıktılar:**
+    - `PublicLandingPage.jsx` bileşeninin yapısı, metin bölümlerini (`.scroll-section`) yatay bir sarmalayıcı (`.horizontal-scroll-wrapper`) içine alacak şekilde güncellendi.
+    - `useLayoutEffect` içindeki GSAP animasyon mantığı, sayfa aşağı kaydırıldıkça dikeyde sabitlenmiş bir alanda (`pin: true`) metin bölümlerini yatay olarak (`x` ekseninde) kaydıracak şekilde yeniden yazıldı.
+    - `HomePage.css` dosyası, bu yeni yatay düzeni destekleyecek şekilde güncellendi. `.scroll-content` bir "viewport" (görüş alanı) haline getirildi ve `.horizontal-scroll-wrapper` tüm bölümleri yan yana içerecek şekilde genişletildi.
+- **Öğrenimler:** GSAP ScrollTrigger kütüphanesinin, dikey kaydırma hareketini yatay bir animasyona dönüştürmek için nasıl kullanılabileceği öğrenildi. `pin: true` özelliğinin, bir elementi sayfa kaydırılırken ekranda nasıl sabitlediği pratik edildi. `will-change: transform` gibi CSS performans ipuçlarının, akıcı animasyonlar için tarayıcıya nasıl yardımcı olduğu anlaşıldı.
+
+---
+
+### 72. Gün: Ana Sayfa Animasyonunu Sinematik Hale Getirme
+
+- **Yapılanlar:** Ana karşılama sayfasındaki yatay kaydırma animasyonu, daha sinematik ve profesyonel bir dikey kaydırma deneyimi ile değiştirildi. Sayfa boyutu orijinal, daha kompakt haline geri getirildi.
+- **Çıktılar:**
+    - `PublicLandingPage.jsx` bileşeni, 3D sahneyi ve metin animasyonlarını içerecek şekilde yeniden düzenlendi. GSAP ScrollTrigger kullanılarak, sayfa aşağı kaydırıldıkça tetiklenen yeni bir animasyon zaman çizelgesi (timeline) oluşturuldu:
+        1.  Berber koltuğu 180 derece dönüyor.
+        2.  Koltuk dönüşünü tamamladığında, metinler zarif bir şekilde beliriyor.
+        3.  Daha fazla kaydırma ile ilk metin kaybolurken ikinci metin beliriyor ve alttaki sayfa göstergeleri (pagination dots) güncelleniyor.
+    - `HomePage.css` dosyası, dikey kaydırma düzenine geri döndü ve yeni sinematik metin animasyonlarını destekleyecek şekilde güncellendi.
+- **Öğrenimler:** GSAP'in zaman çizelgesi (timeline) özelliğinin, birden çok animasyonu hassas zamanlama ile sıralamak ve senkronize etmek için nasıl kullanıldığı pratik edildi. `pin: true` ve `scrub: 1` gibi ScrollTrigger özelliklerinin, bir "video gibi" kaydırma deneyimi yaratmadaki gücü anlaşıldı. Kullanıcı deneyimini iyileştirmek için animasyonlarda `ease` (yumuşatma) fonksiyonlarının önemini ve farklı `ease` tiplerinin animasyonun hissiyatını nasıl değiştirdiği görüldü.
+
+---
+
+### 73. Gün: İnatçı "Siyah Ekran" Hatasının Çözümü
+
+- **Yapılanlar:** Önceki günlerde yapılan animasyon değişiklikleri sonrası devam eden "siyah ekran" hatası, çok katmanlı bir yaklaşımla kalıcı olarak çözüldü.
+- **Karşılaşılan Sorunlar:**
+    1.  **JavaScript Çökmesi:** `PublicLandingPage.jsx` içindeki `useLayoutEffect`'in, React'in 3D sahneyi ve diğer DOM elemanlarını render etmesini beklemeden çalıştığı ve `null` olan referanslara (`.current`) erişmeye çalışarak uygulamayı çökerttiği tespit edildi.
+    2.  **CSS Yerleşim Hatası:** `HomePage.css` dosyasındaki `position: sticky` ve hatalı `height` değerlerinin, GSAP'in `pin` özelliğiyle çakışarak animasyon alanının doğru şekilde oluşturulmasını engellediği anlaşıldı.
+- **Çıktılar:**
+    - `PublicLandingPage.jsx` dosyasındaki `useLayoutEffect`'in başına, animasyon için gerekli tüm referansların (`ref.current`) var olup olmadığını kontrol eden bir "guard clause" (koruma koşulu) eklendi. Bu, JS çökmesini tamamen engelledi.
+    - `HomePage.css` dosyası, animasyonlu konteynerin `height: 100vh` ve `position: relative` olmasını, GSAP'in `pin` özelliğinin ise bu konteyneri sarmalayan daha büyük bir alanda çalışmasını sağlayacak şekilde yeniden düzenlendi.
+- **Öğrenimler:** Karmaşık animasyonlar oluştururken, React'in render döngüsü ile animasyon kütüphanesinin (GSAP) çalışma zamanlaması arasındaki potansiyel "yarış durumları" (race conditions) anlaşıldı. `useLayoutEffect` içinde referansların varlığını kontrol etmenin, bu tür hatalara karşı sağlam bir savunma mekanizması olduğu öğrenildi. GSAP'in `pin` özelliğinin doğru çalışması için CSS'te `position: sticky` gibi çakışan kurallardan kaçınılması ve doğru HTML/CSS yapısının kurulması gerektiği pekiştirildi.
+
+---
+
+### 74. Gün: Ana Sayfa Animasyonunu Sinematik Intro ile Değiştirme
+
+- **Yapılanlar:** Projenin ana karşılama sayfası, eski 3D/GSAP kaydırma animasyonu yerine, belirli bir zaman çizelgesine göre çalışan, sinematik ve modern bir "intro" animasyonu ile tamamen yeniden tasarlandı.
+- **Çıktılar:**
+    - `framer-motion` paketi projeye eklendi.
+    - `PublicLandingPage.jsx` bileşeni, `useState` ve `useEffect` hook'ları kullanılarak, 3 saniyelik aralıklarla değişen üç farklı metin slaytını gösterecek şekilde yeniden yazıldı.
+    - `AnimatePresence` ve `motion.div` bileşenleri kullanılarak metinler arasında akıcı `fade` ve `slide` geçişleri sağlandı.
+    - Animasyonun son aşamasında, kullanıcıyı `/login` sayfasına yönlendiren, parlayan bir "Randevu Al" butonu belirecek şekilde animasyon tamamlandı.
+    - `HomePage.css` dosyası, bu yeni sinematik arayüzü (arka plan, metin stilleri, buton ve sayfalama göstergeleri) stilize etmek için tamamen yeniden düzenlendi.
+- **Öğrenimler:** Framer Motion kütüphanesinin, React bileşenlerinde karmaşık ve zaman çizelgesine dayalı animasyonlar oluşturmak için nasıl kullanıldığı öğrenildi. `AnimatePresence` bileşeninin, DOM'dan kaldırılan elemanlar için "exit" animasyonları oluşturmadaki rolü anlaşıldı. `useState` ve `useEffect` ile zamanlanmış (timed) state değişiklikleri yaparak bir animasyon sekansı oluşturma pratiği yapıldı.
+
+---
+
+### 75. Gün: Frontend Hata Ayıklama (Eksik Bağımlılık - `framer-motion`)
+
+- **Yapılanlar:** Yeni sinematik intro animasyonu eklendikten sonra karşılaşılan `Failed to resolve import "framer-motion"` hatası çözüldü.
+- **Karşılaşılan Sorunlar:** Hatanın, animasyonlar için kullanılan `framer-motion` kütüphanesinin `frontend` projesine hiç yüklenmemiş olmasından (`package.json` dosyasında eksik) kaynaklandığı tespit edildi.
+- **Çıktılar:** `frontend` klasöründe `npm install framer-motion` komutu çalıştırılarak eksik bağımlılık projeye eklendi ve sorun giderildi.
+- **Öğrenimler:** Bir projeye yeni bir kütüphane eklerken, sadece `import` ifadesini yazmanın yeterli olmadığı, paketin `npm` veya `yarn` gibi bir paket yöneticisiyle projeye kurulması gerektiği pekiştirildi. `Failed to resolve import` hatasının, sadece dosya yolu yanlışlıklarından değil, aynı zamanda projenin `node_modules` klasöründe bulunmayan paketlerden de kaynaklanabileceği anlaşıldı.
+
+---
+
+### 76. Gün: Ana Sayfa Arayüz ve Etkileşim İyileştirmeleri
+
+- **Yapılanlar:** Sinematik intro'ya sahip ana sayfanın kullanıcı deneyimi ve görsel zenginliği artırıldı.
+- **Çıktılar:**
+    - `PublicLandingPage.jsx` bileşeni güncellendi: Arka plan videosunun `loop` özelliği kaldırıldı. Alttaki ilerleme çizgilerine (`pagination-lines`), tıklandığında ilgili slayta geçişi sağlayan `onClick` olay yöneticileri eklendi. Ekranın soluna sosyal medya ikonları ve sağına iletişim bilgisi için yeni `div`'ler eklendi.
+    - `HomePage.css` dosyasına, bu yeni eklenen yan elemanları (`.side-elements`) dikey olarak konumlandıran ve stilize eden yeni CSS kuralları eklendi. Ayrıca, ilerleme çizgilerinin tıklanabilir olduğunu belirtmek için `cursor: pointer` eklendi. Mobil cihazlarda daha temiz bir görünüm için yan elemanların gizlenmesi sağlandı.
+- **Öğrenimler:** Bir web sayfasında "negatif boşluk" (negative space) alanlarını, kullanıcıyı ana içerikten uzaklaştırmayacak şekilde ikincil bilgilerle (sosyal medya, iletişim) nasıl doldurulacağı öğrenildi. CSS'te `writing-mode: vertical-rl` gibi özelliklerle dikey metin yerleşimlerinin nasıl yapılabileceği görüldü. React'te, bir dizi üzerinden `map` ile render edilen elemanlara, `onClick` ile state güncelleyen fonksiyonlar ekleyerek nasıl interaktif hale getirilebileceği pratik edildi.
+
+---
+
+### 77. Gün: Ana Sayfa Arayüzü Son Rötuşlar
+
+- **Yapılanlar:** Ana karşılama sayfasındaki yerleşim ve görsel sorunlar giderildi.
+- **Karşılaşılan Sorunlar:**
+    1.  Arka plan videosunun üzerinde, görüntüyü bozan ve karartan dikdörtgen şeklinde bir filtre vardı.
+    2.  Navigasyon menüsündeki logo ve butonlar ortalanmış duruyordu, sağa ve sola yaslanmaları gerekiyordu.
+    3.  Sayfanın alt kısmında, sitenin amacını anlatan "Neden Biz?" bölümü eksikti.
+- **Çıktılar:**
+    - `HomePage.css` dosyasındaki `.background-overlay` kuralı, rahatsız edici `radial-gradient` yerine, videonun alt ve üst kısımlarını hafifçe karartarak metin okunurluğunu artıran daha zarif bir `linear-gradient` ile değiştirildi.
+    - `PublicLandingPage.css` dosyasında, `.navbar`'a `left: 0` eklenerek tam genişliğe yayılması sağlandı ve `.nav-buttons`'a `margin-left: auto` eklenerek butonların sağa yaslanması sağlandı.
+    - `PublicLandingPage.jsx` dosyasına, daha önce kaldırılmış olan "Neden Biz?" bölümü tekrar eklendi.
+- **Öğrenimler:** CSS Flexbox'ta `margin: auto` kullanımının, bir grup elemanı konteynerin bir kenarına yaslamak için ne kadar güçlü bir araç olduğu anlaşıldı. `radial-gradient` ve `linear-gradient` arasındaki farklar ve metin okunurluğunu artırmak için arka plan üzerinde nasıl farklı karartma efektleri oluşturulabileceği pratik edildi.
+
+---
+
+### 78. Gün: CSS Çakışmalarını Giderme ve Arayüzü Düzeltme
+
+- **Yapılanlar:** Ana karşılama sayfasındaki yerleşim sorunları ve görsel hatalar, CSS dosyaları birleştirilerek ve çakışan kurallar düzeltilerek çözüldü.
+- **Karşılaşılan Sorunlar:** Önceki değişikliklerin etkili olmamasının nedeninin, `PublicLandingPage.jsx` bileşeninin hem `HomePage.css` hem de `PublicLandingPage.css` dosyalarını import etmesi ve bu durumun stil çakışmalarına yol açması olduğu tespit edildi. Navigasyon menüsündeki `justify-content: space-between` kuralı, `margin-left: auto` ile çakışarak butonların sağa yaslanmasını engelliyordu.
+- **Çıktılar:**
+    - `HomePage.css` dosyasındaki tüm stiller, ana stil dosyası olan `PublicLandingPage.css`'e taşındı.
+    - Artık gereksiz olan `HomePage.css` dosyası ve `PublicLandingPage.jsx` içindeki import satırı silindi.
+    - `PublicLandingPage.css` dosyasındaki `.navbar` kuralından `justify-content: space-between` kaldırılarak `margin-left: auto`'nun doğru çalışması sağlandı.
+- **Öğrenimler:** Bir React bileşeni için stil kurallarını tek bir dosyada merkezileştirmenin, CSS çakışmalarını ve beklenmedik yerleşim hatalarını önlemedeki önemi anlaşıldı. CSS Flexbox'ta `justify-content` ve `margin: auto` gibi özelliklerin birbiriyle nasıl etkileşime girdiği ve bazen birbirini etkisiz hale getirebileceği pratik olarak görüldü.
+
+---
+
+### 82. Gün: Kritik Hata Ayıklama (Avatar Kaybolma Sorunu)
+
+- **Yapılanlar:** Profil sayfasında, berberin avatar dışındaki bilgilerini güncellediğinde mevcut avatarının silinmesi sorunu kalıcı olarak çözüldü.
+- **Karşılaşılan Sorunlar:** Sorunun kök nedeninin, `ProfileInfoForm` bileşeninin, yeni bir avatar dosyası seçilmediğinde mevcut `avatar_url` bilgisini backend'e göndermemesi olduğu tespit edildi. Bu durum, backend'in bu alanı `NULL` olarak yorumlamasına ve veritabanındaki mevcut avatar bilgisini silmesine neden oluyordu.
+- **Çıktılar:** `ProfilePage.jsx` içindeki `ProfileInfoForm` bileşeninin `handleSubmit` fonksiyonuna, `avatarFile`'ın `null` olduğu durumda mevcut `profile.avatar_url`'yi `FormData`'ya ekleyen bir `else if` bloğu eklendi.
+- **Öğrenimler:** `multipart/form-data` ile bir kaynağı güncellerken, değiştirilmeyen alanların (özellikle dosya yolları gibi) değerlerini de isteğe eklemenin, verinin istenmeden silinmesini (null'lanmasını) önlemek için ne kadar kritik olduğu anlaşıldı. Benzer özelliklere sahip farklı formların (Müşteri Profili vs. Berber Profili) mantıklarının birbiriyle tutarlı olması gerektiği pekiştirildi.
+
+---
+
+### 83. Gün: Kritik Backend Hata Ayıklaması (Avatar Kaybolma Sorununun Kök Nedeni)
+
+- **Yapılanlar:** Profil sayfasında avatar dışındaki bilgileri güncellerken avatarın silinmesi sorunu, bu kez backend tarafında kalıcı olarak çözüldü.
+- **Karşılaşılan Sorunlar:** Önceki frontend düzeltmesinin sorunu çözmemesi üzerine yapılan derinlemesine analizde, asıl sorunun `barberProfile.model.js` dosyasındaki `upsert` fonksiyonunda olduğu tespit edildi. Fonksiyon, `ON CONFLICT ... DO UPDATE` kısmında, gelen `avatar_url` değeri `undefined` (yani `NULL`) olduğunda, veritabanındaki mevcut değeri korumak yerine üzerine `NULL` yazarak siliyordu.
+- **Çıktılar:**
+    - `barberProfile.model.js` dosyasındaki `upsert` fonksiyonunun `UPDATE` kısmı, `COALESCE(EXCLUDED.avatar_url, barber_profiles.avatar_url)` kullanılarak yeniden yazıldı. Bu, yeni bir değer gelmediği takdirde mevcut değerin korunmasını garantileyen "savunmacı" bir programlama tekniğidir.
+    - `user.controller.js` dosyasındaki tekrar eden `updateMyProfile` fonksiyonu silinerek kod temizliği yapıldı.
+- **Öğrenimler:** Veritabanı modelleri tasarlarken, özellikle `UPDATE` veya `UPSERT` işlemlerinde, gönderilmeyen alanların istenmeden `NULL` olarak güncellenmesini önlemek için `COALESCE` gibi SQL fonksiyonlarını kullanmanın ne kadar önemli olduğu anlaşıldı. Bir hatanın gerçek kök nedenini bulmak için frontend'den backend'e ve veritabanı katmanına kadar tüm akışı takip etmenin gerekliliği pekiştirildi.
+
+---
+
+### 81. Gün: Ana Sayfa Arayüzü Genişlik Ayarlamaları
+
+- **Yapılanlar:** Ana karşılama sayfasındaki "Neden Biz?" ve "Footer" bölümlerinin, tam ekran video gibi tüm ekran genişliğini kaplaması sağlandı.
+- **Karşılaşılan Sorunlar:** Sayfanın ana konteyneri (`#root`) `max-width` ile sınırlandırıldığı için, normal akıştaki `section` ve `footer` elemanları da bu genişlikle sınırlı kalıyordu. Bu durum, tam ekran video bölümünden sonra gelen bölümlerde kenarlarda boşluklar oluşmasına neden oluyordu.
+- **Çıktılar:**
+    - `PublicLandingPage.css` dosyası güncellendi.
+    - `.why-us-section` ve `.footer` sınıflarına, elemanları ana konteynerin genişlik kısıtlamasından çıkarıp tam ekran genişliğine (`100vw`) yaymak için `position: relative`, `width: 100vw`, `left: 50%` ve `transform: translateX(-50%)` CSS kuralları eklendi.
+- **Öğrenimler:** Bir elemanı, `max-width` ile sınırlandırılmış bir üst konteynerin dışına taşıyarak tam ekran genişliğine sahip bir arka plan oluşturmanın CSS'teki teknikleri öğrenildi. `position: relative` ile birlikte `width: 100vw` ve `transform` kullanmanın, elemanı normal belge akışındaki yerini korurken görsel olarak nasıl genişletilebileceği pratik edildi.
+
+
+---
+
+### 75. Gün: Frontend Hata Ayıklama (Eksik Bağımlılık - `framer-motion`)
+
+- **Yapılanlar:** Yeni sinematik intro animasyonu eklendikten sonra karşılaşılan `Failed to resolve import "framer-motion"` hatası çözüldü.
+- **Karşılaşılan Sorunlar:** Hatanın, animasyonlar için kullanılan `framer-motion` kütüphanesinin `frontend` projesine hiç yüklenmemiş olmasından (`package.json` dosyasında eksik) kaynaklandığı tespit edildi.
+- **Çıktılar:** `frontend` klasöründe `npm install framer-motion` komutu çalıştırılarak eksik bağımlılık projeye eklendi ve sorun giderildi.
+- **Öğrenimler:** Bir projeye yeni bir kütüphane eklerken, sadece `import` ifadesini yazmanın yeterli olmadığı, paketin `npm` veya `yarn` gibi bir paket yöneticisiyle projeye kurulması gerektiği pekiştirildi. `Failed to resolve import` hatasının, sadece dosya yolu yanlışlıklarından değil, aynı zamanda projenin `node_modules` klasöründe bulunmayan paketlerden de kaynaklanabileceği anlaşıldı.
+
+---
+
+### 75. Gün: Frontend Hata Ayıklama (Eksik Bağımlılık - `framer-motion`)
+
+- **Yapılanlar:** Yeni sinematik intro animasyonu eklendikten sonra karşılaşılan `Failed to resolve import "framer-motion"` hatası çözüldü.
+- **Karşılaşılan Sorunlar:** Hatanın, animasyonlar için kullanılan `framer-motion` kütüphanesinin `frontend` projesine hiç yüklenmemiş olmasından (`package.json` dosyasında eksik) kaynaklandığı tespit edildi.
+- **Çıktılar:** `frontend` klasöründe `npm install framer-motion` komutu çalıştırılarak eksik bağımlılık projeye eklendi ve sorun giderildi.
+- **Öğrenimler:** Bir projeye yeni bir kütüphane eklerken, sadece `import` ifadesini yazmanın yeterli olmadığı, paketin `npm` veya `yarn` gibi bir paket yöneticisiyle projeye kurulması gerektiği pekiştirildi. `Failed to resolve import` hatasının, sadece dosya yolu yanlışlıklarından değil, aynı zamanda projenin `node_modules` klasöründe bulunmayan paketlerden de kaynaklanabileceği anlaşıldı.
+
+---
+
+### 68. Gün: Hata Ayıklama (400 Bad Request - Hatalı Zaman Doğrulaması)
+
+- **Yapılanlar:** Randevu oluşturma sırasında, geçerli bir saat seçilmesine rağmen alınan `Request failed with status code 400` hatası çözüldü.
+- **Karşılaşılan Sorunlar:** Sorunun, backend'deki `createAppointment` controller'ında bulunan sunucu taraflı zaman doğrulama mantığından kaynaklandığı tespit edildi. Kontrol, saatleri string (metin) olarak karşılaştırıyordu (`"10:00" < "09:00"`), bu da yanlış sonuçlara ve geçerli isteklerin reddedilmesine neden oluyordu. Ayrıca, kontrolün hizmet süresini hesaba katmadığı anlaşıldı.
+- **Çıktılar:** `appointment.controller.js` dosyasındaki zaman doğrulama mantığı tamamen yeniden yazıldı. Artık saatler string olarak değil, başlangıç ve bitiş saatlerini dakikaya çevirerek sayısal olarak karşılaştırılıyor. Ayrıca, seçilen hizmetin süresi de hesaba katılarak, randevunun bitiş saatinin dükkanın kapanış saatini geçmemesi sağlanıyor.
+- **Öğrenimler:** Zaman ve tarih verilerini string olarak karşılaştırmanın ne kadar kırılgan ve hatalı bir yaklaşım olduğu pratik olarak görüldü. Zaman karşılaştırmaları için veriyi sayısal bir formata (toplam dakika gibi) dönüştürmenin daha sağlam bir yöntem olduğu öğrenildi. Sunucu taraflı doğrulamanın, sadece gelen verinin varlığını değil, aynı zamanda iş kurallarına (çalışma saatleri, hizmet süresi) uygunluğunu da kontrol etmesi gerektiği pekiştirildi.

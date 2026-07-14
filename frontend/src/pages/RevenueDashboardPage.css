@@ -1,0 +1,36 @@
+.revenue-grid {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem; /* Add margin to separate from chart */
+}
+
+.stat-card {
+    background-color: var(--bg-secondary); /* Use secondary bg */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    flex: 1;
+    min-width: 200px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.stat-card h3 {
+    margin-top: 0;
+    color: var(--text-secondary); /* Use secondary text */
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.stat-card .revenue-amount {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin: 0.5rem 0;
+    color: var(--accent-primary); /* Use accent color */
+}
+
+.stat-card .transaction-count {
+    margin: 0;
+    color: var(--text-secondary); /* Use secondary text */
+}

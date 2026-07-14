@@ -4,11 +4,12 @@ Bu dosya, projenin geliştirme görevlerini takip etmek için kullanılır.
 
 ## 🗳️ Backlog (v3.0 için Planlananlar - Gelişmiş Profil ve Etkileşim)
 
-- [ ] **v3.0:** Puanlama ve yorum sistemi altyapısını kur (Backend & DB)
-- [ ] **v3.0:** Harita entegrasyonu için berber profiline koordinat ekle (Backend & DB)
-- [ ] **v3.0:** Gelişmiş profil özellikleri (fotoğraf galerisi) için altyapı kur (Backend & DB)
-- [ ] **v3.0:** Müşterinin yorum yapma ve puan verme arayüzünü oluştur (Frontend)
-- [ ] **v3.0:** Berber profilinde harita, yorumlar ve galeriyi göster (Frontend)
+- [x] **v3.0:** Puanlama ve yorum sistemi altyapısını kur (Backend & DB)
+- [x] **v3.0:** Müşterinin yorum yapma ve puan verme arayüzünü oluştur (Frontend)
+- [x] **v3.0:** Berber profilinde yorumları ve ortalama puanı göster (Frontend)
+- [x] **v3.0:** Berber profilinde harita ve galeriyi göster (Frontend)
+- [x] **v3.0:** Harita ve galeri için veritabanı altyapısını kur (Backend & DB)
+- [x] **v3.0:** Berberlerin kendi galerilerini ve konum bilgilerini yönetebilecekleri arayüzü oluştur (Frontend)
 
 ## ✅ Tamamlananlar (Done)
 

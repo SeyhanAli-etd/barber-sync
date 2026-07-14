@@ -1,0 +1,37 @@
+.working-hours-container {
+  background-color: rgba(255, 255, 255, 0.03);
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.working-hours-container h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.working-hours-container ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.working-hours-container li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.working-hours-container li.today .day-name,
+.working-hours-container li.today .hours {
+  color: var(--gold);
+  font-weight: 500;
+}
+
+.day-name {
+  text-transform: capitalize;
+}

@@ -19,3 +19,33 @@ exports.getMe = async (req, res) => {
     res.status(500).send('Sunucu Hatası');
   }
 };
+
+// @route   PUT /api/users/me
+// @desc    Update the current user's (customer's) profile
+// @access  Private
+exports.updateMyProfile = async (req, res) => {
+  try {
+    const { full_name, email, phone_number } = req.body;
+    const user_id = req.user.id;
+
+    const userData = {
+      full_name: full_name || null,
+      email: email || null,
+      phone_number: phone_number || null,
+    };
+
+    // SADECE yeni bir dosya varsa avatarı güncelle
+    if (req.file) {
+      userData.avatar_url = `uploads/${req.file.filename}`;
+    }
+
+    const updatedUser = await User.update(user_id, userData);
+
+    // Şifre hash'ini yanıttan çıkar
+    const { password_hash, ...userWithoutPassword } = updatedUser;
+    res.json(userWithoutPassword);
+  } catch (error) {
+    console.error('Kullanıcı profili güncelleme hatası:', error);
+    res.status(500).send('Sunucu Hatası');
+  }
+};

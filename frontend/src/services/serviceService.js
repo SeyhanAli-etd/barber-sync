@@ -1,58 +1,25 @@
-const API_URL = 'http://localhost:5000/api/services';
+import api from './api';
 
-export const getMyServices = async (token) => {
-  const response = await fetch(API_URL, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-  if (!response.ok) throw new Error('Hizmetler getirilemedi.');
-  return response.json();
+// Berberin kendi hizmetlerini getirme
+export const getMyServices = async () => {
+  const response = await api.get('/services');
+  return response.data;
 };
 
-export const createService = async (serviceData, token) => {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify(serviceData),
-  });
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Hizmet oluşturulamadı.');
-  }
-  return response.json();
+// Yeni hizmet oluşturma
+export const createService = async (serviceData) => {
+  const response = await api.post('/services', serviceData);
+  return response.data;
 };
 
-export const updateService = async (id, serviceData, token) => {
-  const response = await fetch(`${API_URL}/${id}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-    body: JSON.stringify(serviceData),
-  });
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Hizmet güncellenemedi.');
-  }
-  return response.json();
+// Hizmeti güncelleme
+export const updateService = async (serviceId, serviceData) => {
+  const response = await api.put(`/services/${serviceId}`, serviceData);
+  return response.data;
 };
 
-export const deleteService = async (id, token) => {
-  const response = await fetch(`${API_URL}/${id}`, {
-    method: 'DELETE',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Hizmet silinemedi.');
-  }
-  // DELETE returns 204 No Content, so no JSON to parse
-  return true;
+// Hizmeti silme (soft delete)
+export const deleteService = async (serviceId) => {
+  const response = await api.delete(`/services/${serviceId}`);
+  return response.data;
 };

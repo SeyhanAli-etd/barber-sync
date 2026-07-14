@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { getMyServices, createService, updateService, deleteService } from '../services/serviceService';
+import './ServiceManagementPage.css';
+import './ListPage.css'; // Reusing list styles
 
 const ServiceForm = ({ serviceToEdit, onFormSubmit, clearEdit }) => {
   const [formData, setFormData] = useState({
@@ -31,22 +33,22 @@ const ServiceForm = ({ serviceToEdit, onFormSubmit, clearEdit }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #eee', borderRadius: '8px' }}>
+    <form onSubmit={handleSubmit} className="card service-form">
       <h3>{serviceToEdit ? 'Hizmeti Düzenle' : 'Yeni Hizmet Ekle'}</h3>
-      <div style={{ marginBottom: '1rem' }}>
+      <div className="form-group">
         <label>Hizmet Adı:</label>
-        <input type="text" name="name" value={formData.name} onChange={handleChange} required style={{ width: '100%', padding: '8px' }} />
+        <input type="text" name="name" value={formData.name} onChange={handleChange} required />
       </div>
-      <div style={{ marginBottom: '1rem' }}>
+      <div className="form-group">
         <label>Fiyat (TL):</label>
-        <input type="number" name="price" value={formData.price} onChange={handleChange} required min="0" step="0.01" style={{ width: '100%', padding: '8px' }} />
+        <input type="number" name="price" value={formData.price} onChange={handleChange} required min="0" step="0.01" />
       </div>
-      <div style={{ marginBottom: '1rem' }}>
+      <div className="form-group">
         <label>Süre (dakika):</label>
-        <input type="number" name="duration_minutes" value={formData.duration_minutes} onChange={handleChange} required min="5" step="5" style={{ width: '100%', padding: '8px' }} />
+        <input type="number" name="duration_minutes" value={formData.duration_minutes} onChange={handleChange} required min="5" step="5" />
       </div>
       <button type="submit">{serviceToEdit ? 'Güncelle' : 'Ekle'}</button>
-      {serviceToEdit && <button type="button" onClick={clearEdit} style={{ marginLeft: '10px' }}>İptal</button>}
+      {serviceToEdit && <button type="button" onClick={clearEdit} className="btn-secondary">İptal</button>}
     </form>
   );
 };
@@ -105,22 +107,22 @@ const ServiceManagementPage = () => {
   if (error) return <div style={{ color: 'red' }}>Hata: {error}</div>;
 
   return (
-    <div>
+    <div className="list-page service-management-page">
       <h2>Hizmet Yönetimi</h2>
       <ServiceForm serviceToEdit={serviceToEdit} onFormSubmit={handleFormSubmit} clearEdit={() => setServiceToEdit(null)} />
       <h3>Mevcut Hizmetler</h3>
       {services.length === 0 ? (
         <p>Henüz eklenmiş bir hizmetiniz bulunmamaktadır.</p>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <ul className="list-container">
           {services.map((service) => (
-            <li key={service.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid #ccc', padding: '1rem', marginBottom: '1rem' }}>
+            <li key={service.id} className="list-item-card">
               <div>
                 <strong>{service.name}</strong> ({service.duration_minutes} dk) - {service.price} TL
               </div>
-              <div>
-                <button onClick={() => setServiceToEdit(service)} style={{ marginRight: '10px' }}>Düzenle</button>
-                <button onClick={() => handleDelete(service.id)} style={{ backgroundColor: '#dc3545', color: 'white' }}>Sil</button>
+              <div className="action-buttons">
+                <button onClick={() => setServiceToEdit(service)}>Düzenle</button>
+                <button onClick={() => handleDelete(service.id)} className="btn-cancel">Sil</button>
               </div>
             </li>
           ))}

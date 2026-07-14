@@ -4,11 +4,14 @@ const authMiddleware = require('../middlewares/auth.middleware');
 const roleMiddleware = require('../middlewares/role.middleware');
 const reportController = require('../../controllers/report.controller');
 
-const barberOnly = [authMiddleware, roleMiddleware('barber')];
-
 // @route   GET /api/reports/revenue
-// @desc    Get daily and monthly revenue for the logged-in barber
+// @desc    Get daily and monthly revenue report
 // @access  Private (Barbers only)
-router.get('/revenue', barberOnly, reportController.getRevenueReport);
+router.get('/revenue', authMiddleware, roleMiddleware('barber'), reportController.getRevenueReport);
+
+// @route   GET /api/reports/monthly-summary
+// @desc    Get monthly revenue summary for the last 12 months
+// @access  Private (Barbers only)
+router.get('/monthly-summary', authMiddleware, roleMiddleware('barber'), reportController.getMonthlySummary);
 
 module.exports = router;

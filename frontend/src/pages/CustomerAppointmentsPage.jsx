@@ -1,59 +1,95 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
 import { getMyCustomerAppointments } from '../services/appointmentService';
-
-const getStatusColor = (status) => {
-  switch (status) {
-    case 'confirmed': return '#28a745';
-    case 'pending': return '#ffc107';
-    case 'cancelled': return '#dc3545';
-    case 'completed': return '#17a2b8';
-    default: return '#6c757d';
-  }
-};
+import { createReview } from '../services/reviewService';
+import Modal from '../components/Modal';
+import ReviewForm from '../components/ReviewForm';
+import './ListPage.css';
 
 const CustomerAppointmentsPage = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { token } = useAuth();
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      const data = await getMyCustomerAppointments();
+      setAppointments(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchAppointments = async () => {
-      if (!token) return;
-      try {
-        setLoading(true);
-        const data = await getMyCustomerAppointments(token);
-        setAppointments(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchAppointments();
-  }, [token]);
+  }, []);
+
+  const handleOpenReviewModal = (appointment) => {
+    setSelectedAppointment(appointment);
+    setShowReviewModal(true);
+  };
+
+  const handleCloseReviewModal = () => {
+    setSelectedAppointment(null);
+    setShowReviewModal(false);
+  };
+
+  const handleReviewSubmit = async (reviewData) => {
+    try {
+      await createReview(reviewData);
+      alert('Yorumunuz için teşekkür ederiz!');
+      handleCloseReviewModal();
+      fetchAppointments(); // Listeyi yenileyerek "Yorum Yapıldı" durumunu göster
+    } catch (err) {
+      // Form, kendi içindeki hatayı zaten gösterecektir.
+      // Hatanın tekrar fırlatılması, formun loading durumunu doğru yönetmesini sağlar.
+      throw err;
+    }
+  };
+
+  const renderStatusBadge = (status) => {
+    return <span className={`status-badge status-${status}`}>{status}</span>;
+  };
 
   if (loading) return <div>Randevularınız yükleniyor...</div>;
-  if (error) return <div style={{ color: 'red' }}>Hata: {error}</div>;
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
-    <div>
+    <div className="list-page">
       <h2>Randevularım</h2>
       {appointments.length === 0 ? (
         <p>Henüz bir randevunuz bulunmamaktadır.</p>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <ul className="list-container">
           {appointments.map((app) => (
-            <li key={app.id} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
-              <p><strong>Berber:</strong> {app.barber_name} ({app.shop_name || 'Dükkan Adı Yok'})</p>
-              <p><strong>Tarih:</strong> {new Date(app.appointment_time).toLocaleString('tr-TR', { dateStyle: 'long', timeStyle: 'short' })}</p>
-              <p><strong>Durum:</strong> <span style={{ padding: '4px 8px', borderRadius: '12px', color: 'white', backgroundColor: getStatusColor(app.status) }}>{app.status}</span></p>
-              {app.notes && <p><strong>Notunuz:</strong> {app.notes}</p>}
+            <li key={app.id} className="list-item-card">
+              <div>
+                <p><strong>Berber:</strong> {app.barber_name}</p>
+                <p><strong>Dükkan:</strong> {app.shop_name || 'N/A'}</p>
+                <p><strong>Tarih:</strong> {new Date(app.appointment_time).toLocaleString('tr-TR')}</p>
+                <p><strong>Durum:</strong> {renderStatusBadge(app.status)}</p>
+              </div>
+              <div className="action-buttons">
+                {app.status === 'completed' &&
+                  (app.has_review ? (
+                    <button disabled>Yorum Yapıldı</button>
+                  ) : (
+                    <button onClick={() => handleOpenReviewModal(app)}>Yorum Yap</button>
+                  ))}
+              </div>
             </li>
           ))}
         </ul>
+      )}
+
+      {showReviewModal && (
+        <Modal onClose={handleCloseReviewModal}>
+          <ReviewForm appointment={selectedAppointment} onSubmit={handleReviewSubmit} onCancel={handleCloseReviewModal} />
+        </Modal>
       )}
     </div>
   );

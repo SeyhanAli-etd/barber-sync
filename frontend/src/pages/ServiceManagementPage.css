@@ -1,0 +1,41 @@
+.service-form {
+    margin-bottom: 2rem;
+}
+
+.service-form h3 {
+    margin-top: 0;
+    color: var(--gold);
+}
+
+.service-form .form-group {
+    margin-bottom: 1.25rem;
+}
+  
+.service-form .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.service-form .btn-secondary {
+    background-color: var(--text-muted);
+    color: var(--charcoal-bg);
+    font-weight: 600;
+    margin-left: 10px;
+}
+
+.working-hour-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.day-label {
+    width: 100px;
+    text-transform: capitalize;
+    color: var(--text-muted);
+}
+
+.service-management-page h3 {
+    color: var(--text-primary);
+}

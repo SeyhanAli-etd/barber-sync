@@ -1,15 +1,11 @@
-const API_URL = 'http://localhost:5000/api/reports';
+import api from './api';
 
-export const getRevenueReport = async (token) => {
-  const response = await fetch(`${API_URL}/revenue`, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
+export const getRevenueReport = async () => {
+  const response = await api.get('/reports/revenue');
+  return response.data;
+};
 
-  if (!response.ok) {
-    throw new Error('Ciro raporu getirilemedi.');
-  }
-
-  return response.json();
+export const getMonthlySummary = async () => {
+    const response = await api.get('/reports/monthly-summary');
+    return response.data;
 };

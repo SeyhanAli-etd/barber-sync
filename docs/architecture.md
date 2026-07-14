@@ -62,6 +62,7 @@ Table users {
   password_hash varchar(255) [not null]
   phone_number varchar(20)
   role user_role [not null]
+  avatar_url varchar(255)
   created_at timestamp [default: `now()`]
 }
 
@@ -71,7 +72,8 @@ Table barber_profiles {
   shop_name varchar(150)
   address text
   working_hours jsonb // Örn: {"monday": "09:00-19:00", "tuesday": "09:00-19:00"}
-  avatar_url varchar(255)
+  latitude numeric(9, 6)
+  longitude numeric(9, 6)
 }
 
 Table appointments {
@@ -96,6 +98,24 @@ Table services {
   price numeric(10, 2) [not null]
   duration_minutes integer [not null]
   is_active boolean [default: true]
+  created_at timestamp [default: `now()`]
+}
+
+Table barber_gallery_photos {
+  id uuid [pk, default: `gen_random_uuid()`]
+  barber_id uuid [ref: > users.id, not null]
+  image_url varchar(255) [not null]
+  description text
+  created_at timestamp [default: `now()`]
+}
+
+Table reviews {
+  id uuid [pk, default: `gen_random_uuid()`]
+  appointment_id uuid [ref: > appointments.id, unique, not null]
+  customer_id uuid [ref: > users.id, not null]
+  barber_id uuid [ref: > users.id, not null]
+  rating integer [not null] // 1-5
+  comment text
   created_at timestamp [default: `now()`]
 }
 

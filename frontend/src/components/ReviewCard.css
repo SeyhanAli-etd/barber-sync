@@ -1,0 +1,53 @@
+.review-card {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.review-card:last-child {
+  border-bottom: none;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.review-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.review-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.customer-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.review-date {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.review-stars {
+  margin-left: auto;
+  color: var(--gold);
+}
+
+.review-stars .star {
+  font-size: 0.9rem;
+}
+
+.review-comment {
+  color: var(--text-muted);
+  font-style: italic;
+  margin: 0;
+  padding-left: 50px; /* Align with name */
+}

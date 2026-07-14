@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { register } from '../services/authService';
+import './AuthForm.css';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -32,33 +33,33 @@ const RegisterPage = () => {
   };
 
   return (
-    <div style={{ maxWidth: '400px', margin: '50px auto', padding: '2rem', border: '1px solid #ccc', borderRadius: '8px' }}>
+    <div className="auth-form-container">
       <h2>Kayıt Ol</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="full_name" style={{ display: 'block', marginBottom: '5px' }}>Tam Adınız:</label>
-          <input type="text" id="full_name" name="full_name" value={formData.full_name} onChange={handleChange} required style={{ width: '100%', padding: '8px' }} />
+      <form onSubmit={handleSubmit} className="auth-form">
+        <div className="form-group">
+          <label htmlFor="full_name">Tam Adınız:</label>
+          <input type="text" id="full_name" name="full_name" value={formData.full_name} onChange={handleChange} required />
         </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="email" style={{ display: 'block', marginBottom: '5px' }}>Email:</label>
-          <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required style={{ width: '100%', padding: '8px' }} />
+        <div className="form-group">
+          <label htmlFor="email">Email:</label>
+          <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
         </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="password" style={{ display: 'block', marginBottom: '5px' }}>Şifre:</label>
-          <input type="password" id="password" name="password" value={formData.password} onChange={handleChange} required style={{ width: '100%', padding: '8px' }} />
+        <div className="form-group">
+          <label htmlFor="password">Şifre:</label>
+          <input type="password" id="password" name="password" value={formData.password} onChange={handleChange} required />
         </div>
-        <div style={{ marginBottom: '1rem' }}>
-          <label htmlFor="role" style={{ display: 'block', marginBottom: '5px' }}>Kayıt Tipi:</label>
-          <select name="role" id="role" value={formData.role} onChange={handleChange} style={{ width: '100%', padding: '8px' }}>
+        <div className="form-group">
+          <label htmlFor="role">Kayıt Tipi:</label>
+          <select name="role" id="role" value={formData.role} onChange={handleChange}>
             <option value="customer">Müşteri</option>
             <option value="barber">Berber</option>
           </select>
         </div>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
-        {success && <p style={{ color: 'green' }}>{success}</p>}
-        <button type="submit" disabled={!!success} style={{ width: '100%', padding: '10px', background: '#28a745', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>Kayıt Ol</button>
+        {error && <p className="error-message">{error}</p>}
+        {success && <p className="success-message">{success}</p>}
+        <button type="submit" disabled={!!success} className="btn-success">Kayıt Ol</button>
       </form>
-      <p style={{ marginTop: '1rem', textAlign: 'center' }}>
+      <p className="form-switch">
         Zaten bir hesabın var mı? <Link to="/login">Giriş Yap</Link>
       </p>
     </div>

@@ -1,30 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../hooks/useAuth';
-import { getRevenueReport } from '../services/reportService';
+import { getRevenueReport, getMonthlySummary } from '../services/reportService';
+import RevenueChart from '../components/RevenueChart';
+import './RevenueDashboardPage.css';
 
-const StatCard = ({ title, revenue, count }) => (
-  <div style={{ border: '1px solid #eee', borderRadius: '8px', padding: '1.5rem', textAlign: 'center', flex: 1, minWidth: '200px' }}>
-    <h3 style={{ marginTop: 0, color: '#666' }}>{title}</h3>
-    <p style={{ fontSize: '2rem', fontWeight: 'bold', margin: '0.5rem 0', color: '#17a2b8' }}>
-      {revenue.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}
-    </p>
-    <p style={{ margin: 0, color: '#888' }}>{count} işlem</p>
+const StatCard = ({ title, amount, count }) => (
+  <div className="stat-card">
+    <h3>{title}</h3>
+    <p className="revenue-amount">{amount.toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</p>
+    <p className="transaction-count">{count} işlem</p>
   </div>
 );
 
 const RevenueDashboardPage = () => {
   const [report, setReport] = useState(null);
+  const [monthlyData, setMonthlyData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const { token } = useAuth();
 
   useEffect(() => {
-    const fetchReport = async () => {
-      if (!token) return;
+    const fetchReports = async () => {
       try {
         setLoading(true);
-        const data = await getRevenueReport(token);
-        setReport(data);
+        const [revenueReport, monthlySummary] = await Promise.all([
+          getRevenueReport(),
+          getMonthlySummary()
+        ]);
+        setReport(revenueReport);
+        setMonthlyData(monthlySummary);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -32,31 +34,30 @@ const RevenueDashboardPage = () => {
       }
     };
 
-    fetchReport();
-  }, [token]);
+    fetchReports();
+  }, []);
 
   if (loading) return <div>Raporlar yükleniyor...</div>;
-  if (error) return <div style={{ color: 'red' }}>Hata: {error}</div>;
+  if (error) return <div className="error-message">{error}</div>;
 
   return (
-    <div>
+    <div className="list-page">
       <h2>Ciro Raporları</h2>
-      {report ? (
-        <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-          <StatCard
-            title="Bugünkü Ciro"
-            revenue={report.daily.total_revenue}
-            count={report.daily.transaction_count}
+      {report && (
+        <div className="revenue-grid">
+          <StatCard 
+            title="Bugünkü Ciro" 
+            amount={parseFloat(report.daily.total_revenue)} 
+            count={report.daily.transaction_count} 
           />
-          <StatCard
-            title="Bu Aylık Ciro"
-            revenue={report.monthly.total_revenue}
-            count={report.monthly.transaction_count}
+          <StatCard 
+            title="Bu Ayki Ciro" 
+            amount={parseFloat(report.monthly.total_revenue)} 
+            count={report.monthly.transaction_count} 
           />
         </div>
-      ) : (
-        <p>Rapor verisi bulunamadı.</p>
       )}
+      <RevenueChart monthlyData={monthlyData} />
     </div>
   );
 };

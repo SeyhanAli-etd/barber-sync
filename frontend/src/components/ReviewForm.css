@@ -1,0 +1,39 @@
+.review-form-modal {
+  padding: 1rem;
+}
+
+.review-form-modal h3 {
+  margin-top: 0;
+  color: var(--gold);
+}
+
+.review-form-modal p {
+  color: var(--text-muted);
+  margin-top: -0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.star-rating {
+  display: flex;
+  gap: 0.25rem;
+  font-size: 2rem;
+  color: #555;
+}
+
+.star {
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.star.filled {
+  color: var(--gold);
+}
+
+.star:hover,
+.star:hover ~ .star {
+  color: #777;
+}
+
+.star-rating:hover .star.filled {
+  color: var(--gold);
+}

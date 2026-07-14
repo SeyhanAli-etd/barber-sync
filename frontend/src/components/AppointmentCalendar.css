@@ -1,0 +1,71 @@
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.date-picker-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.date-picker-wrapper label {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+input[type="date"] {
+  background-color: var(--bg-dark);
+  padding: 12px;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.slot-btn {
+  background-color: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  padding: 0.8em;
+  border-radius: 20px;
+  transition: all 0.2s ease-in-out;
+}
+
+.slot-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background-color: rgba(212, 175, 55, 0.1);
+}
+
+.slot-btn.selected {
+  background-color: var(--gold);
+  color: var(--bg-dark);
+  border-color: var(--gold);
+  transform: scale(1.1);
+  box-shadow: 0 0 15px var(--glow-color);
+}
+
+.slot-btn:disabled {
+  background-color: var(--charcoal-bg);
+  border-color: var(--charcoal-bg);
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.confirm-btn {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.8em 1.2em;
+  font-size: 1.1rem;
+}

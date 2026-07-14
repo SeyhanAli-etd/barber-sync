@@ -1,23 +1,31 @@
-// backend/src/controllers/auth.controller.js
-
+const User = require('../models/user.model');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const User = require('../models/user.model');
+require('dotenv').config();
 
+// @route   POST /api/auth/register
+// @desc    Register a new user
+// @access  Public
 exports.register = async (req, res) => {
-  try {
-    const { full_name, email, password, role } = req.body;
+  const { full_name, email, password, role } = req.body;
 
-    // Gerekli alanlar var mı kontrol et
-    if (!full_name || !email || !password || !role) {
-      return res.status(400).json({ message: 'Tüm alanlar zorunludur.' });
+  // Basic validation
+  if (!full_name || !email || !password || !role) {
+    return res.status(400).json({ message: 'Lütfen tüm alanları doldurun.' });
+  }
+
+  try {
+    // Check if user already exists
+    let user = await User.findByEmail(email);
+    if (user) {
+      return res.status(400).json({ message: 'Bu e-posta adresi zaten kullanımda.' });
     }
 
-    // Şifreyi hash'le
+    // Hash the password
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
-    // Yeni kullanıcıyı oluştur
+    // Create new user
     const newUser = await User.create({
       full_name,
       email,
@@ -25,71 +33,53 @@ exports.register = async (req, res) => {
       role,
     });
 
-    // Cevap dön (şifre hash'ini gönderme!)
-    res.status(201).json({
-      message: 'Kullanıcı başarıyla oluşturuldu.',
-      user: {
-        id: newUser.id,
-        full_name: newUser.full_name,
-        email: newUser.email,
-        role: newUser.role,
-      },
-    });
+    // Don't return password hash
+    const { password_hash: _, ...userToReturn } = newUser;
+
+    res.status(201).json(userToReturn);
   } catch (error) {
     console.error('Kayıt hatası:', error);
-    // E-posta zaten varsa veritabanı "unique constraint" hatası verir
-    if (error.code === '23505') {
-        return res.status(409).json({ message: 'Bu e-posta adresi zaten kullanılıyor.' });
-    }
-    res.status(500).json({ message: 'Sunucu hatası oluştu.' });
+    res.status(500).send('Sunucu Hatası');
   }
 };
 
+// @route   POST /api/auth/login
+// @desc    Authenticate user & get token
+// @access  Public
 exports.login = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Lütfen e-posta ve şifrenizi girin.' });
+  }
+
   try {
-    const { email, password } = req.body;
-
-    // 1. Gerekli alanlar var mı kontrol et
-    if (!email || !password) {
-      return res.status(400).json({ message: 'E-posta ve şifre zorunludur.' });
-    }
-
-    // 2. Kullanıcıyı e-posta ile bul
+    // Check for user
     const user = await User.findByEmail(email);
     if (!user) {
-      // Güvenlik için "Kullanıcı bulunamadı" demek yerine genel bir hata veriyoruz.
       return res.status(401).json({ message: 'Geçersiz e-posta veya şifre.' });
     }
 
-    // 3. Şifreleri karşılaştır
+    // Check password
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
       return res.status(401).json({ message: 'Geçersiz e-posta veya şifre.' });
     }
 
-    // 4. JWT Oluştur
+    // User matched, create JWT payload
     const payload = {
-      user: {
-        id: user.id,
-        role: user.role,
-      },
+      id: user.id,
+      role: user.role,
     };
 
-    jwt.sign(
-      payload,
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }, // Token 1 saat geçerli olacak
-      (err, token) => {
-        if (err) throw err;
-        res.json({
-          success: true,
-          message: 'Giriş başarılı.',
-          token: token,
-        });
-      }
-    );
+    // Sign the token
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+    // Return the token
+    res.json({ token });
+
   } catch (error) {
     console.error('Giriş hatası:', error);
-    res.status(500).json({ message: 'Sunucu hatası oluştu.' });
+    res.status(500).send('Sunucu Hatası');
   }
 };

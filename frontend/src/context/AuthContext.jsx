@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react';
-import { login as loginService, getMe } from '../services/authService';
+import { useNavigate } from 'react-router-dom';
+import { login as apiLogin, getMe } from '../services/authService';
 
 const AuthContext = createContext();
 
@@ -7,16 +8,20 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const validateToken = async () => {
-      if (token) {
+      // Bu effect sadece uygulama ilk yüklendiğinde çalışmalı.
+      // `token` state'i yerine doğrudan localStorage'dan okuyoruz.
+      const storedToken = localStorage.getItem('token');
+      if (storedToken) {
         try {
-          const userData = await getMe(token);
+          const userData = await getMe();
           setUser(userData);
         } catch (error) {
-          // Token geçersiz veya süresi dolmuş olabilir.
-          console.error(error.message);
+          // Token geçersizse, temizle.
+          console.error("Oturum doğrulaması başarısız:", error.message);
           localStorage.removeItem('token');
           setToken(null);
           setUser(null);
@@ -24,23 +29,40 @@ export const AuthProvider = ({ children }) => {
       }
       setLoading(false);
     };
+
     validateToken();
-  }, [token]);
+  }, []); // Bağımlılık dizisini boş bırakarak sadece ilk render'da çalışmasını sağlıyoruz.
 
   const login = async (email, password) => {
-    const data = await loginService(email, password);
+    const data = await apiLogin(email, password); // Sadece token döner
     localStorage.setItem('token', data.token);
     setToken(data.token);
-    setUser(data.user); // Login endpoint'i kullanıcı bilgisini de dönüyor.
+    
+    // ANA DÜZELTME: Token'ı aldıktan sonra kullanıcı bilgilerini hemen çek.
+    // Axios interceptor'ı yeni token'ı otomatik olarak kullanacaktır.
+    const userData = await getMe();
+    setUser(userData);
   };
 
   const logout = () => {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    navigate('/login');
   };
 
-  const value = { token, user, login, logout, isAuthenticated: !!token, loading };
+  const refreshUser = async () => {
+    // Bu fonksiyon, kullanıcı verisini sunucudan yeniden çekerek state'in her zaman senkronize olmasını sağlar.
+    // Profil güncellemesi gibi işlemlerden sonra tek doğruluk kaynağı olarak hareket eder.
+    try {
+      const userData = await getMe();
+      setUser(userData);
+    } catch (error) {
+      console.error("Kullanıcı bilgisi yenilenirken hata:", error);
+    }
+  };
+
+  const value = { token, user, login, logout, isAuthenticated: !!token, loading, refreshUser };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

@@ -1,41 +1,34 @@
-const API_URL = 'http://localhost:5000/api';
+import api from './api';
 
 /**
  * Fetches the profile for the currently logged-in barber.
- * @param {string} token - The JWT token for authorization.
  * @returns {Promise<object|null>} The barber profile object or null if not found.
  */
-export const getMyBarberProfile = async (token) => {
-  const response = await fetch(`${API_URL}/profile/me`, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-
-  if (!response.ok) {
-    if (response.status === 404) {
-      return null; // No profile created yet, this is not an error.
-    }
-    throw new Error('Berber profili getirilemedi.');
+export const getMyBarberProfile = async () => {
+  try {
+    const response = await api.get('/profile/me');
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.status === 404) return null;
+    throw error;
   }
-
-  return response.json();
 };
 
-export const upsertMyBarberProfile = async (profileData, token) => {
-    const response = await fetch(`${API_URL}/profile/me`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(profileData),
-    });
-
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Profil güncellenemedi.');
-    }
-
-    return response.json();
+export const upsertMyBarberProfile = async (profileData) => {
+    // Axios handles FormData Content-Type automatically
+    const response = await api.put('/profile/me', profileData);
+    return response.data;
 }
+
+// For Customers
+export const getMyCustomerProfile = async () => {
+    const response = await api.get('/users/me');
+    return response.data;
+}
+
+export const updateMyCustomerProfile = async (profileData) => {
+    // Axios handles FormData Content-Type automatically
+    const response = await api.put('/users/me', profileData);
+    return response.data;
+}
+

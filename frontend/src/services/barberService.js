@@ -1,30 +1,32 @@
-const API_URL = 'http://localhost:5000/api';
+import api from './api';
 
-export const getBarbers = async () => {
-  // Bu halka açık bir endpoint olduğu için token gerekmez.
-  const response = await fetch(`${API_URL}/barbers`);
-
-  if (!response.ok) {
-    throw new Error('Berberler getirilemedi.');
-  }
-
-  return response.json();
+/**
+ * Sistemdeki tüm aktif berberleri listeler.
+ * @returns {Promise<Array>} Berber listesi.
+ */
+export const getAllBarbers = async () => {
+  const response = await api.get('/barbers');
+  return response.data;
 };
 
-export const getBarberById = async (id) => {
-  const response = await fetch(`${API_URL}/barbers/${id}`);
-  if (!response.ok) {
-    throw new Error('Berber profili getirilemedi.');
-  }
-  return response.json();
+/**
+ * Belirli bir berberin detaylı profilini ve hizmetlerini getirir.
+ * @param {string} barberId - Berberin ID'si.
+ * @returns {Promise<Object>} Berber profili ve hizmetleri.
+ */
+export const getBarberById = async (barberId) => {
+  const response = await api.get(`/barbers/${barberId}`);
+  return response.data;
 };
 
-export const getBarberAvailability = async (id, date) => {
-  // date format should be YYYY-MM-DD
-  const response = await fetch(`${API_URL}/barbers/${id}/availability?date=${date}`);
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || 'Müsaitlik durumu getirilemedi.');
-  }
-  return response.json();
+/**
+ * Belirli bir berberin belirli bir tarihteki müsait saatlerini getirir.
+ * @param {string} barberId - Berberin ID'si.
+ * @param {string} date - 'YYYY-MM-DD' formatında tarih.
+ * @param {number} duration - Hizmetin süresi (dakika).
+ * @returns {Promise<Object>} Müsait saatleri içeren bir obje.
+ */
+export const getBarberAvailability = async (barberId, date, duration) => {
+  const response = await api.get(`/barbers/${barberId}/availability`, { params: { date, duration } });
+  return response.data;
 };

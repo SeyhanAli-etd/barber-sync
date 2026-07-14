@@ -2,20 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { getMyBarberAppointments, updateAppointmentStatus } from '../services/appointmentService';
 import CompleteAppointmentModal from '../components/CompleteAppointmentModal';
+import './ListPage.css';
 
 // Helper function for status colors
 const getStatusColor = (status) => {
   switch (status) {
     case 'confirmed':
-      return '#28a745'; // green
+      return '#a5d6a7'; // light green
     case 'pending':
-      return '#ffc107'; // yellow
+      return '#fff59d'; // light yellow
     case 'cancelled':
-      return '#dc3545'; // red
+      return '#ef9a9a'; // light red
     case 'completed':
-      return '#17a2b8'; // blue
+      return '#81d4fa'; // light blue
     default:
-      return '#6c757d'; // gray
+      return '#bdbdbd'; // light gray
   }
 };
 
@@ -71,7 +72,7 @@ const BarberDashboardPage = () => {
   if (error) return <div style={{ color: 'red' }}>Hata: {error}</div>;
 
   return (
-    <div>
+    <div className="list-page">
       <h2>Randevu Paneli</h2>
       {completingAppointment && (
         <CompleteAppointmentModal
@@ -83,23 +84,25 @@ const BarberDashboardPage = () => {
       {appointments.length === 0 ? (
         <p>Henüz randevu talebiniz bulunmamaktadır.</p>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <ul className="list-container">
           {appointments.map((app) => (
-            <li key={app.id} style={{ border: '1px solid #ccc', borderRadius: '8px', padding: '1rem', marginBottom: '1rem' }}>
-              <p><strong>Müşteri:</strong> {app.customer_name}</p>
-              <p><strong>Tarih:</strong> {new Date(app.appointment_time).toLocaleString('tr-TR', { dateStyle: 'long', timeStyle: 'short' })}</p>
-              <p><strong>Durum:</strong> <span style={{ padding: '4px 8px', borderRadius: '12px', color: 'white', backgroundColor: getStatusColor(app.status) }}>{app.status}</span></p>
-              {app.status === 'pending' && (
-                <div>
-                  <button onClick={() => handleStatusUpdate(app.id, 'confirmed')} style={{ marginRight: '10px', backgroundColor: 'green', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer' }}>Onayla</button>
-                  <button onClick={() => handleStatusUpdate(app.id, 'cancelled')} style={{ backgroundColor: 'red', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer' }}>İptal Et</button>
-                </div>
-              )}
-              {app.status === 'confirmed' && (
-                <div>
-                  <button onClick={() => setCompletingAppointment(app)} style={{ backgroundColor: '#17a2b8', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '5px', cursor: 'pointer' }}>Tamamla</button>
-                </div>
-              )}
+            <li key={app.id} className="list-item-card">
+              <div>
+                <p><strong>Müşteri:</strong> {app.customer_name}</p>
+                <p><strong>Tarih:</strong> {new Date(app.appointment_time).toLocaleString('tr-TR', { dateStyle: 'long', timeStyle: 'short' })}</p>
+                <p><strong>Durum:</strong> <span className="status-badge" style={{ backgroundColor: getStatusColor(app.status) }}>{app.status}</span></p>
+              </div>
+              <div className="action-buttons">
+                {app.status === 'pending' && (
+                  <>
+                    <button onClick={() => handleStatusUpdate(app.id, 'confirmed')} className="btn-confirm">Onayla</button>
+                    <button onClick={() => handleStatusUpdate(app.id, 'cancelled')} className="btn-cancel">İptal Et</button>
+                  </>
+                )}
+                {app.status === 'confirmed' && (
+                  <button onClick={() => setCompletingAppointment(app)} className="btn-complete">Tamamla</button>
+                )}
+              </div>
             </li>
           ))}
         </ul>

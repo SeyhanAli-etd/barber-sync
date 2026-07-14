@@ -124,7 +124,8 @@ const Appointment = {
         a.notes,
         a.created_at,
         u.full_name AS barber_name,
-        bp.shop_name
+        bp.shop_name,
+        EXISTS (SELECT 1 FROM reviews WHERE appointment_id = a.id) as has_review
       FROM appointments a
       JOIN users u ON a.barber_id = u.id
       LEFT JOIN barber_profiles bp ON a.barber_id = bp.user_id

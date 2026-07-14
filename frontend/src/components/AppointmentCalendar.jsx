@@ -2,28 +2,33 @@ import React, { useState, useEffect } from 'react';
 import { getBarberAvailability } from '../services/barberService';
 import { createAppointment } from '../services/appointmentService';
 import { useAuth } from '../hooks/useAuth';
+import './AppointmentCalendar.css';
 
 // Helper to format date to YYYY-MM-DD
 const toYYYYMMDD = (date) => {
-  return date.toISOString().split('T')[0];
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
-const AppointmentCalendar = ({ barberId }) => {
+const AppointmentCalendar = ({ barber, service, onAppointmentBooked }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [availability, setAvailability] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [bookingLoading, setBookingLoading] = useState(false);
   const { token } = useAuth();
 
   useEffect(() => {
     const fetchAvailability = async () => {
       setLoading(true);
       setError('');
-      setSuccess('');
+      setSelectedSlot(null);
       try {
         const dateStr = toYYYYMMDD(selectedDate);
-        const data = await getBarberAvailability(barberId, dateStr);
+        const data = await getBarberAvailability(barber.id, dateStr, service.duration_minutes);
         setAvailability(data.availableSlots);
       } catch (err) {
         setError(err.message);
@@ -32,52 +37,55 @@ const AppointmentCalendar = ({ barberId }) => {
       }
     };
     fetchAvailability();
-  }, [selectedDate, barberId]);
+  }, [selectedDate, barber.id, service.duration_minutes]);
 
   const handleDateChange = (e) => {
-    // Add a day to the selected date to correct for timezone issues with date input
-    const date = new Date(e.target.value);
-    const userTimezoneOffset = date.getTimezoneOffset() * 60000;
-    setSelectedDate(new Date(date.getTime() + userTimezoneOffset));
+    // Create a new Date object in the local timezone to avoid timezone issues
+    const [year, month, day] = e.target.value.split('-').map(Number);
+    setSelectedDate(new Date(year, month - 1, day));
   };
 
-  const handleSlotClick = async (slot) => {
-    if (!window.confirm(`${toYYYYMMDD(selectedDate)} ${slot} için randevu almak istediğinizden emin misiniz?`)) {
-      return;
-    }
-
+  const handleConfirmAppointment = async () => {
     setError('');
-    setSuccess('');
+    setBookingLoading(true);
 
     try {
-      const appointmentTime = `${toYYYYMMDD(selectedDate)}T${slot}:00.000Z`;
+      const appointmentTime = `${toYYYYMMDD(selectedDate)}T${selectedSlot}:00.000Z`;
       const appointmentData = {
-        barber_id: barberId,
+        barber_id: barber.id,
         appointment_time: appointmentTime,
+        service_id: service.id,
       };
-      await createAppointment(appointmentData, token);
-      setSuccess(`Randevunuz başarıyla oluşturuldu: ${toYYYYMMDD(selectedDate)} ${slot}`);
-      // Refetch availability to remove the booked slot
-      const updatedAvailability = availability.filter(s => s !== slot);
-      setAvailability(updatedAvailability);
+      await createAppointment(appointmentData);
+      onAppointmentBooked(); // Notify parent component
     } catch (err) {
       setError(err.message);
+    } finally {
+      setBookingLoading(false);
     }
   };
 
   return (
-    <div>
-      <label htmlFor="date-picker">Tarih Seçin:</label>
-      <input type="date" id="date-picker" value={toYYYYMMDD(selectedDate)} onChange={handleDateChange} min={toYYYYMMDD(new Date())} />
-      <hr />
-      <h4>Müsait Saatler</h4>
-      {loading && <p>Müsaitlik kontrol ediliyor...</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
-      {!loading && availability.length === 0 && <p>Seçili tarih için müsait randevu saati bulunmamaktadır.</p>}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-        {availability.map((slot) => (<button key={slot} onClick={() => handleSlotClick(slot)} disabled={!!success}>{slot}</button>))}
+    <div className="calendar-container">
+      <div className="date-picker-wrapper">
+        <label htmlFor="date-picker">Tarih:</label>
+        <input type="date" id="date-picker" value={toYYYYMMDD(selectedDate)} onChange={handleDateChange} min={toYYYYMMDD(new Date())} />
       </div>
+      
+      {loading && <p>Müsaitlik kontrol ediliyor...</p>}
+      {error && !loading && <p className="error-message">{error}</p>}
+      
+      {!loading && availability.length === 0 && <p>Seçili tarih için müsait randevu saati bulunmamaktadır.</p>}
+      
+      <div className="slots-grid">
+        {availability.map((slot) => (<button key={slot} className={`slot-btn ${selectedSlot === slot ? 'selected' : ''}`} onClick={() => setSelectedSlot(slot)} disabled={bookingLoading}>{slot}</button>))}
+      </div>
+
+      {selectedSlot && (
+        <button className="confirm-btn" onClick={handleConfirmAppointment} disabled={bookingLoading}>
+          {bookingLoading ? 'Onaylanıyor...' : `${selectedSlot} için Randevuyu Onayla`}
+        </button>
+      )}
     </div>
   );
 };
