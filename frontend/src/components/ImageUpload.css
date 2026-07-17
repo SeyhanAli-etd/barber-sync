@@ -34,7 +34,7 @@
 }
 
 .image-upload-container:hover {
-  border-color: var(--gold);
+  border-color: var(--accent-primary);
 }
 
 .image-upload-container:hover .avatar-preview {

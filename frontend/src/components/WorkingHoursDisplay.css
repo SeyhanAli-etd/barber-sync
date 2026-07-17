@@ -23,12 +23,12 @@
   display: flex;
   justify-content: space-between;
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .working-hours-container li.today .day-name,
 .working-hours-container li.today .hours {
-  color: var(--gold);
+  color: var(--accent-primary);
   font-weight: 500;
 }
 

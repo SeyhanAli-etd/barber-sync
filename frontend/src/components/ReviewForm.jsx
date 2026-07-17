@@ -1,19 +1,22 @@
 import React, { useState } from 'react';
 import './ReviewForm.css';
 
-const StarRating = ({ rating, setRating }) => {
+const StarRatingInput = ({ rating, setRating }) => {
   return (
-    <div className="star-rating">
+    <div className="star-rating-input">
       {[...Array(5)].map((_, index) => {
         const ratingValue = index + 1;
         return (
-          <span
-            key={ratingValue}
-            className={ratingValue <= rating ? 'star filled' : 'star'}
-            onClick={() => setRating(ratingValue)}
-          >
-            ★
-          </span>
+          <label key={ratingValue}>
+            <input
+              type="radio"
+              name="rating"
+              value={ratingValue}
+              onClick={() => setRating(ratingValue)}
+              style={{ display: 'none' }}
+            />
+            <span className={`star ${ratingValue <= rating ? 'filled' : ''}`}>★</span>
+          </label>
         );
       })}
     </div>
@@ -23,8 +26,8 @@ const StarRating = ({ rating, setRating }) => {
 const ReviewForm = ({ appointment, onSubmit, onCancel }) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,6 +38,8 @@ const ReviewForm = ({ appointment, onSubmit, onCancel }) => {
     setError('');
     setLoading(true);
     try {
+      // The parent component's onSubmit will handle the API call and success logic.
+      // We await it and catch errors to display them in the form.
       await onSubmit({
         appointment_id: appointment.id,
         rating,
@@ -48,25 +53,32 @@ const ReviewForm = ({ appointment, onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="review-form-modal">
-      <h3>{appointment.barber_name} için Yorum Yap</h3>
-      <p>{new Date(appointment.appointment_time).toLocaleString('tr-TR')} randevusu</p>
-      <form onSubmit={handleSubmit}>
-        {error && <p className="error-message">{error}</p>}
-        <div className="form-group">
-          <label>Puanınız</label>
-          <StarRating rating={rating} setRating={setRating} />
-        </div>
-        <div className="form-group">
-          <label>Yorumunuz (isteğe bağlı)</label>
-          <textarea value={comment} onChange={(e) => setComment(e.target.value)} rows="4" placeholder="Deneyiminizi paylaşın..." />
-        </div>
-        <div className="modal-actions">
-          <button type="button" className="btn-secondary" onClick={onCancel} disabled={loading}>İptal</button>
-          <button type="submit" disabled={loading}>{loading ? 'Gönderiliyor...' : 'Yorumu Gönder'}</button>
-        </div>
-      </form>
-    </div>
+    <form onSubmit={handleSubmit} className="review-form">
+      <h3>Deneyiminizi Değerlendirin</h3>
+      <p><strong>Berber:</strong> {appointment.barber_name}</p>
+      {error && <p className="error-message">{error}</p>}
+      <div className="form-group">
+        <label>Puanınız:</label>
+        <StarRatingInput rating={rating} setRating={setRating} />
+      </div>
+      <div className="form-group">
+        <label>Yorumunuz (isteğe bağlı):</label>
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          rows="4"
+          placeholder="Deneyiminiz hakkında birkaç kelime yazın..."
+        />
+      </div>
+      <div className="modal-actions">
+        <button type="button" onClick={onCancel} className="btn-secondary" disabled={loading}>
+          İptal
+        </button>
+        <button type="submit" disabled={loading || rating === 0}>
+          {loading ? 'Gönderiliyor...' : 'Yorumu Gönder'}
+        </button>
+      </div>
+    </form>
   );
 };
 

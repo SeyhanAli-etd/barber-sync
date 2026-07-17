@@ -1,53 +1,168 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
+import { geocodeAddress, reverseGeocode } from '../services/locationService';
 import './MapAddressPicker.css';
+import 'leaflet/dist/leaflet.css'; // Leaflet CSS'i import et
+import L from 'leaflet'; // Leaflet'in kendisini import et
 
-const containerStyle = {
-  width: '100%',
-  height: '100%'
+// Harita görünümünü dinamik olarak değiştiren yardımcı bileşen
+const ChangeView = ({ center, zoom }) => {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, zoom);
+  }, [center, zoom, map]);
+  return null;
 };
 
-const MapAddressPicker = ({ initialLat, initialLon, onLocationSelect }) => {
-  const [markerPosition, setMarkerPosition] = useState(null);
-  const defaultCenter = { lat: 41.0082, lng: 28.9784 }; // Istanbul
+// Leaflet'in varsayılan ikon yolunu düzelt
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+});
 
-  useEffect(() => {
-    if (initialLat && initialLon) {
-      setMarkerPosition({ lat: parseFloat(initialLat), lng: parseFloat(initialLon) });
+const MapAddressPicker = ({ initialValue, onLocationChange }) => {
+  // Başlangıç değeri yoksa İstanbul'u merkez al
+  const [position, setPosition] = useState(initialValue?.latitude ? [initialValue.latitude, initialValue.longitude] : [41.015137, 28.979530]);
+  const [addressQuery, setAddressQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const markerRef = useRef(null);
+
+  const handleSearch = async (e) => {
+    // Eğer bir event ile tetiklendiyse, varsayılan form gönderme davranışını engelle
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
     }
-  }, [initialLat, initialLon]);
+    if (!addressQuery) return;
+    
+    setIsLoading(true);
+    setError('');
+    setSearchResults([]);
 
-  const handleMapClick = useCallback((event) => {
-    const lat = event.latLng.lat();
-    const lng = event.latLng.lng();
-    const newPosition = { lat, lng };
-    setMarkerPosition(newPosition);
-    onLocationSelect(lat, lng);
-  }, [onLocationSelect]);
+    try {
+      const results = await geocodeAddress(addressQuery);
+      if (results.length === 0) {
+        setError('Bu adrese uygun konum bulunamadı.');
+      }
+      setSearchResults(results);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  const center = markerPosition || defaultCenter;
+  const handleSelectResult = (result) => {
+    const newPosition = [result.lat, result.lon];
+    setPosition(newPosition);
+    setSearchResults([]); // Seçimden sonra sonuçları temizle
+    onLocationChange({
+      address: result.displayName,
+      latitude: result.lat,
+      longitude: result.lon,
+    });
+  };
+
+  // Haritaya tıklandığında veya marker sürüklendiğinde konumu ve adresi güncelleyen fonksiyon
+  const updateLocationFromMap = useCallback(
+    async (lat, lon) => {
+      setIsLoading(true);
+      setError('');
+      try {
+        const address = await reverseGeocode(lat, lon);
+        onLocationChange({
+          address: address,
+          latitude: lat,
+          longitude: lon,
+        });
+      } catch (err) {
+        setError('Adres bilgisi alınamadı.');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [onLocationChange]
+  );
+
+  // Marker'ı sürüklenebilir yapmak için event handler
+  const markerEventHandlers = useMemo(
+    () => ({
+      dragend() {
+        const marker = markerRef.current;
+        if (marker != null) {
+          const { lat, lng } = marker.getLatLng();
+          setPosition([lat, lng]);
+          updateLocationFromMap(lat, lng);
+        }
+      },
+    }),
+    [updateLocationFromMap]
+  );
+
+  // Harita tıklama olaylarını dinleyen bileşen
+  const MapEvents = () => {
+    useMapEvents({
+      click(e) {
+        const { lat, lng } = e.latlng;
+        setPosition([lat, lng]);
+        updateLocationFromMap(lat, lng);
+      },
+    });
+    return null;
+  };
 
   return (
-    <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-      <div className="map-address-picker-container">
-        <div className="map-picker">
-          <GoogleMap
-            mapContainerStyle={containerStyle}
-            center={center}
-            zoom={markerPosition ? 15 : 10}
-            onClick={handleMapClick}
-          >
-            {markerPosition && <Marker position={markerPosition} />}
-          </GoogleMap>
-        </div>
-        {markerPosition && (
-          <div className="selected-coordinates">
-            Seçilen Konum: Enlem: {markerPosition.lat.toFixed(6)}, Boylam: {markerPosition.lng.toFixed(6)}
-          </div>
-        )}
-        {!markerPosition && <p className="map-hint">Haritada bir yere tıklayarak konumunuzu seçin.</p>}
+    <div className="map-address-picker-container">
+      <div className="address-search-form">
+        <input
+          type="text"
+          value={addressQuery}
+          onChange={(e) => setAddressQuery(e.target.value)}
+          placeholder="Açık adres girin (örn: İstiklal Caddesi, Beyoğlu)"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              handleSearch(e);
+            }
+          }}
+        />
+        <button type="button" onClick={handleSearch} disabled={isLoading}>
+          {isLoading ? 'Aranıyor...' : 'Adresi Bul'}
+        </button>
       </div>
-    </LoadScript>
+
+      {error && <p className="search-error">{error}</p>}
+
+      {searchResults.length > 0 && (
+        <ul className="search-results-list">
+          {searchResults.map((result, index) => (
+            <li key={index} onClick={() => handleSelectResult(result)}>
+              {result.displayName}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <MapContainer center={position} zoom={13} className="map-picker">
+        <ChangeView center={position} zoom={15} />
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <MapEvents />
+        <Marker
+          draggable={true}
+          eventHandlers={markerEventHandlers}
+          position={position}
+          ref={markerRef}
+        />
+      </MapContainer>
+      <div className="selected-coordinates">
+        Seçili Konum: Enlem: {position[0].toFixed(5)}, Boylam: {position[1].toFixed(5)}
+      </div>
+    </div>
   );
 };
 

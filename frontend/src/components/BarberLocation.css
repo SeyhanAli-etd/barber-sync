@@ -1,0 +1,40 @@
+.location-info-container {
+  background-color: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.location-title {
+  margin: 0 0 4px 0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.location-address {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.directions-button {
+  display: inline-block;
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
+  padding: 10px 20px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: filter 0.3s ease, transform 0.2s ease;
+}
+
+.directions-button:hover {
+  filter: brightness(0.9);
+  transform: translateY(-2px);
+}

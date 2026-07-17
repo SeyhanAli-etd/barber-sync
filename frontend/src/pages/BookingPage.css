@@ -7,7 +7,7 @@
   margin-bottom: 2rem;
   font-size: 2.5rem;
   font-weight: 700;
-  color: var(--gold);
+  color: var(--accent-primary);
 }
 
 .booking-container {
@@ -50,22 +50,24 @@
 .barber-card-small {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  background-color: var(--bg-dark);
+  gap: 1.25rem; /* Boşluğu biraz artır */
+  padding: 1.25rem; /* Kartı büyütmek için iç boşluğu artır */
+  background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: transform 0.2s, border-color 0.2s; /* Sadece bu iki özelliği anime et */
+  position: relative; /* For z-index to work */
 }
 
 .barber-card-small:hover {
-  border-color: var(--gold-accent);
+  transform: translateY(-4px); /* Hafifçe yukarı kaldır */
+  border-color: var(--accent-primary); /* Kenarlık rengini değiştir */
 }
 
 .barber-card-small .profile-link-icon {
   margin-left: auto;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-decoration: none;
   font-size: 1.5rem;
   font-weight: bold;
@@ -74,19 +76,20 @@
 }
 
 .barber-card-small:hover .profile-link-icon {
-  color: var(--gold);
+  color: var(--accent-primary);
   transform: translateX(5px);
 }
 
 .barber-card-small.selected {
-  border-color: var(--gold);
-  transform: scale(1.02);
-  box-shadow: 0 0 20px var(--glow-color);
+  border-color: var(--accent-primary);
+  transform: scale(1.02) translateY(-2px); /* Seçiliyken de hafifçe kalksın */
+  box-shadow: 0 0 15px var(--glow-color);
+  z-index: 3;
 }
 
 .barber-avatar-small {
-  width: 50px;
-  height: 50px;
+  width: 60px; /* Avatarı büyüt */
+  height: 60px; /* Avatarı büyüt */
   border-radius: 50%;
   object-fit: cover;
 }
@@ -98,13 +101,13 @@
 
 .barber-info-small span {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .scheduler-panel {
   position: sticky;
   top: calc(2rem + 75px + 2rem); /* top padding + header height + header margin, adjust if header height changes */
-  background-color: var(--bg-dark);
+  background-color: var(--bg-secondary);
   padding: 2rem;
   border-radius: 8px;
   border: 1px solid var(--border-color);
@@ -125,13 +128,13 @@
   justify-content: center;
   align-items: center;
   height: 300px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .service-selection-hint {
   margin-top: 2rem;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .service-preview-list h4 {
@@ -165,12 +168,12 @@
   background-color: rgba(255, 255, 255, 0.05);
 }
 .service-preview-list li.selected {
-  background-color: rgba(212, 175, 55, 0.1);
-  border-bottom-color: var(--gold);
+  background-color: rgba(216, 163, 115, 0.1);
+  border-bottom-color: var(--accent-primary);
 }
 
 .service-preview-list .price {
-  color: var(--gold);
+  color: var(--accent-primary);
   font-weight: 500;
 }
 
@@ -205,7 +208,7 @@
   padding: 0.75rem 1rem;
   border: none;
   background-color: transparent;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
@@ -221,8 +224,8 @@
 }
 
 .tab-btn.active {
-  color: var(--gold);
-  border-bottom-color: var(--gold);
+  color: var(--accent-primary);
+  border-bottom-color: var(--accent-primary);
 }
 
 .gallery-display-section h4,

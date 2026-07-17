@@ -1,39 +1,63 @@
-.review-form-modal {
+.review-form {
   padding: 1rem;
+  min-width: 400px;
 }
 
-.review-form-modal h3 {
+.review-form h3 {
   margin-top: 0;
-  color: var(--gold);
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: var(--accent-primary);
 }
 
-.review-form-modal p {
-  color: var(--text-muted);
-  margin-top: -0.5rem;
+.review-form p {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--text-secondary);
+}
+
+.review-form .form-group {
   margin-bottom: 1.5rem;
 }
 
-.star-rating {
+.review-form .form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.star-rating-input {
   display: flex;
-  gap: 0.25rem;
-  font-size: 2rem;
-  color: #555;
+  justify-content: center;
+  direction: ltr;
 }
 
-.star {
+.star-rating-input .star {
+  font-size: 2.5rem;
+  color: #444;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.2s, transform 0.1s;
 }
 
-.star.filled {
-  color: var(--gold);
+.star-rating-input .star:hover {
+    transform: scale(1.2);
 }
 
-.star:hover,
-.star:hover ~ .star {
-  color: #777;
+.star-rating-input .star.filled {
+  color: var(--accent-primary);
 }
 
-.star-rating:hover .star.filled {
-  color: var(--gold);
+.star-rating-input:hover .star {
+  color: #444;
+}
+.star-rating-input .star:hover,
+.star-rating-input .star:hover ~ .star {
+  color: var(--accent-primary) !important;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
 }

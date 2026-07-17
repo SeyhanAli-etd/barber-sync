@@ -8,11 +8,36 @@ import PhotoGallery from '../components/PhotoGallery';
 import WorkingHoursDisplay from '../components/WorkingHoursDisplay';
 import './BarberPublicProfilePage.css';
 
+// Helper function to calculate distance between two coordinates
+const getDistanceInKm = (lat1, lon1, lat2, lon2) => {
+  if (lat1 == null || lon1 == null || lat2 == null || lon2 == null) return Infinity;
+  
+  const pLat1 = parseFloat(lat1);
+  const pLon1 = parseFloat(lon1);
+  const pLat2 = parseFloat(lat2);
+  const pLon2 = parseFloat(lon2);
+
+  if (isNaN(pLat1) || isNaN(pLon1) || isNaN(pLat2) || isNaN(pLon2)) {
+    return Infinity;
+  }
+
+  const R = 6371; // Radius of the Earth in km
+  const dLat = (pLat2 - pLat1) * (Math.PI / 180);
+  const dLon = (pLon2 - pLon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(pLat1 * (Math.PI / 180)) * Math.cos(pLat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
 const BarberPublicProfilePage = () => {
   const { id } = useParams();
   const [barber, setBarber] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [distance, setDistance] = useState(null);
 
   useEffect(() => {
     const fetchBarberProfile = async () => {
@@ -28,6 +53,29 @@ const BarberPublicProfilePage = () => {
     };
     fetchBarberProfile();
   }, [id]);
+
+  // Effect to calculate distance from user to barber
+  useEffect(() => {
+    if (!barber?.latitude || !barber?.longitude) {
+      return; // Can't calculate without barber's location
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLat = position.coords.latitude;
+          const userLon = position.coords.longitude;
+          const dist = getDistanceInKm(userLat, userLon, barber.latitude, barber.longitude);
+          setDistance(dist);
+        },
+        () => {
+          // User denied location access, fail silently.
+          // We won't show the distance.
+        }
+      );
+    }
+    // If geolocation is not supported, we just don't show the distance.
+  }, [barber]);
 
   if (loading) {
     return <div className="profile-page-container"><h2>Yükleniyor...</h2></div>;
@@ -77,9 +125,30 @@ const BarberPublicProfilePage = () => {
                 Yol Tarifi Al
               </a>
             )}
+            {distance !== null && isFinite(distance) && (
+              <p className="distance-info-profile">
+                Yaklaşık Mesafe: <strong>{distance.toFixed(1)} km</strong>
+              </p>
+            )}
           </div>
         </div>
         <div className="profile-content">
+          <div className="gallery-section">
+            <h3>Hizmetler</h3>
+            {barber.services && barber.services.length > 0 ? (
+              <ul className="service-list">
+                {barber.services.map(service => (
+                  <li key={service.id} className="service-item">
+                    <span className="service-name">{service.name}</span>
+                    <span className="service-price">{service.price} TL</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Bu berberin tanımlı bir hizmeti bulunmamaktadır.</p>
+            )}
+          </div>
+
           <div className="gallery-section">
             <h3>Galeri</h3>
             <PhotoGallery photos={barber.gallery} />

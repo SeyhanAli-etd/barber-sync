@@ -16,6 +16,13 @@ api.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
+
+    // Eğer istek verisi FormData ise, Content-Type başlığını sil.
+    // Bu, axios'un/tarayıcının doğru 'multipart/form-data' başlığını
+    // gerekli 'boundary' ile birlikte otomatik olarak ayarlamasını sağlar.
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
     return config;
   },
   (error) => {

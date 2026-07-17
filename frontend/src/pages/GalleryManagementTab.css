@@ -1,7 +1,7 @@
 .gallery-management-container h3 {
   margin-top: 2rem;
   margin-bottom: 1.5rem;
-  color: var(--gold);
+  color: var(--accent-primary);
 }
 
 .upload-form {
@@ -33,7 +33,7 @@
 }
 
 .gallery-item-manage {
-  background-color: var(--bg-dark);
+  background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 8px;
   overflow: hidden;
@@ -43,8 +43,8 @@
 }
 
 .gallery-item-manage:hover {
-  border-color: var(--gold);
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 15px var(--glow-color);
 }
 
 .gallery-item-manage img {
@@ -56,7 +56,7 @@
 .gallery-item-manage p {
   padding: 0.75rem;
   font-size: 0.9rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   flex-grow: 1;
 }
 

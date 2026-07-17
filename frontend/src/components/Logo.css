@@ -1,0 +1,46 @@
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.logo-icon-wrapper {
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  flex-shrink: 0; /* Prevent shrinking in flex layouts */
+  box-shadow: 0 0 10px var(--glow-color);
+}
+
+.logo-container:hover .logo-icon-wrapper {
+  transform: scale(1.1) rotate(-10deg);
+  box-shadow: 0 0 15px var(--glow-color);
+}
+
+.logo-svg-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.logo-text-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.logo-main-text {
+  font-family: var(--font-heading);
+  font-size: 1.2rem; /* Uzun isim için fontu biraz küçülttük */
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--text-primary);
+  line-height: 1.1;
+  white-space: nowrap; /* Prevent text from wrapping */
+}

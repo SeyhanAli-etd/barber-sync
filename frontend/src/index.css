@@ -6,17 +6,17 @@
   font-weight: 400;
 
   /* --- YENİ RENK PALETİ --- */
-  --bg-primary: #111214;      /* Ana arka plan (çok koyu kömür) */
-  --bg-secondary: #1a1b1e;    /* Kartlar, paneller gibi yüzeyler */
-  --border-color: #2c2d30;    /* Kenarlıklar ve ayırıcılar */
+  --bg-primary: #101113;      /* Ana arka plan (hafif mavimsi kömür) */
+  --bg-secondary: #181A1D;    /* Kartlar, paneller gibi yüzeyler */
+  --border-color: #2A2C30;    /* Kenarlıklar ve ayırıcılar */
   
-  --accent-primary: #c5a465;  /* Ana vurgu rengi (altın/bronz) */
-  --accent-hover: #b0925a;    /* Vurgu rengi hover durumu */
+  --accent-primary: #D8A373;  /* Ana vurgu rengi (bakır/bronz) */
+  --accent-hover: #C09267;    /* Vurgu rengi hover durumu */
   
-  --text-primary: #e8e6e3;    /* Ana metin rengi (kırık beyaz) */
-  --text-secondary: #9e9e9e;  /* İkincil, soluk metin */
+  --text-primary: #F0F0F0;    /* Ana metin rengi (daha parlak beyaz) */
+  --text-secondary: #A8A8A8;  /* İkincil, soluk metin */
   
-  --glow-color: rgba(197, 164, 101, 0.4); /* Vurgu rengi parlaması */
+  --glow-color: rgba(216, 163, 115, 0.4); /* Vurgu rengi parlaması */
   
   --success-color: #4CAF50;   /* Başarı durumu (onay vb.) */
   --danger-color: #F44336;    /* Tehlike/iptal durumu */
@@ -86,7 +86,7 @@ input, select, textarea {
   border-radius: 5px;
   font-size: 1rem;
   box-sizing: border-box;
-  background-color: var(--bg-secondary);
+  background-color: rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
 }
 

@@ -12,7 +12,7 @@
 }
 
 .modal-content {
-  background-color: var(--surface-color);
+  background-color: var(--bg-secondary);
   padding: 2rem;
   border-radius: 8px;
   width: 90%;
@@ -23,7 +23,7 @@
 
 .modal-content h3 {
   margin-top: 0;
-  color: var(--gold);
+  color: var(--accent-primary);
 }
 
 .modal-actions {
@@ -34,7 +34,7 @@
 }
 
 .modal-actions .btn-secondary {
-  background-color: var(--text-muted);
-  color: var(--charcoal-bg);
+  background-color: var(--text-secondary);
+  color: var(--bg-primary);
   font-weight: 600;
 }

@@ -4,7 +4,7 @@
 
 .service-form h3 {
     margin-top: 0;
-    color: var(--gold);
+    color: var(--accent-primary);
 }
 
 .service-form .form-group {
@@ -18,8 +18,8 @@
 }
 
 .service-form .btn-secondary {
-    background-color: var(--text-muted);
-    color: var(--charcoal-bg);
+    background-color: var(--text-secondary);
+    color: var(--bg-primary);
     font-weight: 600;
     margin-left: 10px;
 }
@@ -33,7 +33,7 @@
 .day-label {
     width: 100px;
     text-transform: capitalize;
-    color: var(--text-muted);
+    color: var(--text-secondary);
 }
 
 .service-management-page h3 {

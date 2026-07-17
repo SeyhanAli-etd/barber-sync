@@ -19,7 +19,7 @@ const AppointmentCalendar = ({ barber, service, onAppointmentBooked }) => {
   const [error, setError] = useState('');
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [bookingLoading, setBookingLoading] = useState(false);
-  const { token } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchAvailability = async () => {
@@ -65,6 +65,8 @@ const AppointmentCalendar = ({ barber, service, onAppointmentBooked }) => {
     }
   };
 
+  const isSelfBooking = user?.role === 'barber' && user?.id === barber?.id;
+
   return (
     <div className="calendar-container">
       <div className="date-picker-wrapper">
@@ -82,9 +84,17 @@ const AppointmentCalendar = ({ barber, service, onAppointmentBooked }) => {
       </div>
 
       {selectedSlot && (
-        <button className="confirm-btn" onClick={handleConfirmAppointment} disabled={bookingLoading}>
-          {bookingLoading ? 'Onaylanıyor...' : `${selectedSlot} için Randevuyu Onayla`}
-        </button>
+        <>
+          {isSelfBooking && (
+            <p className="error-message small">Kendi dükkanınızdan randevu alamazsınız.</p>
+          )}
+          <button 
+            className="confirm-btn" 
+            onClick={handleConfirmAppointment} 
+            disabled={bookingLoading || isSelfBooking}>
+            {bookingLoading ? 'Onaylanıyor...' : `${selectedSlot} için Randevuyu Onayla`}
+          </button>
+        </>
       )}
     </div>
   );

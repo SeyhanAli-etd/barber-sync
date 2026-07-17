@@ -4,6 +4,7 @@ import { useAuth } from './hooks/useAuth';
 import './App.css';
 import { NotificationProvider } from './context/NotificationContext';
 import NotificationDisplay from './components/NotificationDisplay';
+import Logo from './components/Logo'; // Yeni Logo bileşenini import et
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import BarbersListPage from './pages/BarbersListPage';
@@ -25,23 +26,40 @@ function AppLayout() {
     <NotificationProvider>
       <NotificationDisplay />
       <header className="app-header">
-        <NavLink to="/barbers" className="nav-brand">Barber-Sync</NavLink>
+        <Logo to="/barbers" />
         <nav className="main-nav">
+          {/* "Randevu Al" linki artık tüm giriş yapmış kullanıcılar tarafından görülebilir. */}
           <NavLink to="/booking">Randevu Al</NavLink>
-          <NavLink to="/my-appointments">Randevularım</NavLink>
-          {user?.role === 'barber' && <NavLink to="/dashboard">Randevu Paneli</NavLink>}
+          <NavLink to="/barbers">Berber Vitrini</NavLink>
+
+          {/* "Randevularım" linki role göre farklı sayfaya yönlendirir. */}
+          {/* "Randevularım" linki sadece müşteriler için. */}
           
-          {user?.role === 'barber' ? (
-            <div className="nav-item-dropdown">
-              <NavLink to="/profile" className="dropdown-toggle">Profil</NavLink>
-              <div className="dropdown-menu">
-                <NavLink to="/reports">Ciro Raporları</NavLink>
-              </div>
+          <div className="nav-item-dropdown">
+            <a href="#" className="dropdown-toggle" onClick={(e) => e.preventDefault()}>
+              Profil
+            </a>
+            <div className="dropdown-menu">
+              <NavLink to="/profile">
+                {user?.role === 'customer' ? 'Profilim' : 'Profil Yönetimi'}
+              </NavLink>
+              {/* Customer-specific links */}
+              {user?.role === 'customer' && (
+                <NavLink to="/my-appointments">Randevularım</NavLink>
+              )}
+              {/* Barber-specific links */}
+              {user?.role === 'barber' && (
+                <>
+                  <NavLink to="/dashboard">Randevu Talepleri</NavLink>
+                  <NavLink to="/reports">Ciro Raporları</NavLink>
+                  <NavLink to="/my-appointments">Randevularım</NavLink>
+                </>
+              )}
+              <a href="#" onClick={(e) => { e.preventDefault(); logout(); }} className="dropdown-logout-btn">
+                Çıkış Yap
+              </a>
             </div>
-          ) : (
-            <NavLink to="/profile">Profil</NavLink>
-          )}
-          <button onClick={logout} className="logout-btn">Çıkış Yap</button>
+          </div>
         </nav>
       </header>
       <main className="main-content">

@@ -11,9 +11,9 @@
 }
 
 .list-item-card {
-    background-color: var(--bg-dark);
+    background-color: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    border-left: 5px solid var(--gold-accent);
+    border-left: 5px solid var(--accent-primary);
     border-radius: 8px;
     padding: 1.5rem;
     display: flex;
@@ -28,13 +28,13 @@
 }
 
 .list-item-card strong {
-    color: var(--text-muted);
+    color: var(--text-secondary);
 }
 
 .status-badge {
     padding: 4px 12px;
     border-radius: 16px;
-    color: var(--charcoal-bg);
+    color: var(--bg-primary);
     font-weight: 600;
     font-size: 0.9rem;
 }

@@ -9,7 +9,7 @@
 .rating-summary h4 {
   margin-top: 0;
   margin-bottom: 1rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
@@ -28,9 +28,9 @@
 
 .summary-stars {
   font-size: 1.2rem;
-  color: #555;
+  color: var(--border-color);
 }
 
 .summary-stars .star.filled {
-  color: var(--gold);
+  color: var(--accent-primary);
 }

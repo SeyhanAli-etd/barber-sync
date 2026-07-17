@@ -126,19 +126,12 @@ const ProfileInfoForm = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      // Güvenlik önlemi: Sadece berber rolündeki kullanıcılar için veri çek.
-      if (user?.role !== 'barber') {
-        setLoading(false);
-        return;
-      }
-
       try {
-        setLoading(true); // Veri çekme işlemi başlamadan önce yükleniyor durumunu ayarla.
+        // The component starts in a loading state. This effect fetches the
+        // profile data and then sets loading to false in the `finally` block.
         const data = await getMyBarberProfile();
         if (data) {
           setProfile(prevProfile => ({
-            // Bu state artık SADECE berber profiline özel bilgileri tutacak.
-            // Avatar bilgisi global `user` state'inden gelecek.
             shop_name: data.shop_name || '',
             address: data.address || '',
             working_hours: data.working_hours || prevProfile.working_hours, // Keep default structure
@@ -152,7 +145,11 @@ const ProfileInfoForm = () => {
         setLoading(false);
       }
     };
-    fetchProfile();
+    // The parent component ensures that `user` exists and is a barber.
+    // We only run the fetch if the user ID is present.
+    if (user?.id) {
+      fetchProfile();
+    }
   }, [user?.id]);
 
   const handleChange = (e) => {
@@ -193,9 +190,9 @@ const ProfileInfoForm = () => {
         formData.append('avatar', avatarFile);
       }
 
-      // Önce profili güncelle.
+      // 1. Profili güncelle.
       await upsertMyBarberProfile(formData);
-      // Ardından, AuthContext'teki kullanıcı bilgisini sunucudan yeniden çekerek tazele.
+      // 2. Ardından, AuthContext'teki kullanıcı bilgisini sunucudan yeniden çekerek tazele.
       await refreshUser();
 
       setAvatarFile(null);
@@ -212,7 +209,7 @@ const ProfileInfoForm = () => {
     <form onSubmit={handleSubmit}>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>{success}</p>}
-      <ImageUpload key={uploadKey} currentAvatar={user.avatar_url} onFileSelect={setAvatarFile} />
+      <ImageUpload key={uploadKey} currentAvatar={user?.avatar_url} onFileSelect={setAvatarFile} />
       <div style={{ marginBottom: '1rem' }}>
         <label>Dükkan Adı:</label>
         <input type="text" name="shop_name" value={profile.shop_name} onChange={handleChange} />
@@ -284,9 +281,9 @@ const CustomerProfileForm = () => {
         formData.append('avatar', avatarFile);
       }
 
-      // Önce profili güncelle.
+      // 1. Profili güncelle.
       await updateMyCustomerProfile(formData);
-      // Ardından, AuthContext'teki kullanıcı bilgisini sunucudan yeniden çekerek tazele.
+      // 2. Ardından, AuthContext'teki kullanıcı bilgisini sunucudan yeniden çekerek tazele.
       await refreshUser();
 
       setAvatarFile(null); // Başarılı yükleme sonrası önizlemeyi temizle
@@ -303,7 +300,7 @@ const CustomerProfileForm = () => {
     <form onSubmit={handleSubmit}>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>{success}</p>}
-      <ImageUpload key={uploadKey} currentAvatar={user.avatar_url} onFileSelect={setAvatarFile} />
+      <ImageUpload key={uploadKey} currentAvatar={user?.avatar_url} onFileSelect={setAvatarFile} />
       <div style={{ marginBottom: '1rem' }}>
         <label>Ad Soyad:</label>
         <input type="text" name="full_name" value={profileData.full_name} onChange={handleChange} required />

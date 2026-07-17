@@ -33,12 +33,12 @@
 
 .review-date {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .review-stars {
   margin-left: auto;
-  color: var(--gold);
+  color: var(--accent-primary);
 }
 
 .review-stars .star {
@@ -46,7 +46,7 @@
 }
 
 .review-comment {
-  color: var(--text-muted);
+  color: var(--text-secondary);
   font-style: italic;
   margin: 0;
   padding-left: 50px; /* Align with name */

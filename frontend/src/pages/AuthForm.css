@@ -4,7 +4,7 @@
   padding: 2rem;
   border: 1px solid var(--border-color);
   border-radius: 8px;
-  background-color: var(--surface-color);
+  background-color: var(--bg-secondary);
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
@@ -36,7 +36,7 @@
 
 .form-hint {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .error-message {

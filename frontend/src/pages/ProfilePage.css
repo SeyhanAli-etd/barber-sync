@@ -9,7 +9,7 @@ form {
 
 .profile-manager h2 {
     margin-bottom: 2rem;
-    color: var(--gold);
+    color: var(--accent-primary);
 }
 
 .profile-tabs {
@@ -23,7 +23,7 @@ form {
     padding: 1rem 1.5rem;
     border: none;
     background-color: transparent;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
@@ -39,8 +39,8 @@ form {
 }
 
 .tab-btn.active {
-    color: var(--gold);
-    border-bottom-color: var(--gold);
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
 }
 
 .tab-content {
@@ -69,6 +69,6 @@ form textarea {
     border-radius: 5px;
     font-size: 1rem;
     box-sizing: border-box;
-    background-color: rgba(255, 255, 255, 0.05);
+  background-color: var(--bg-secondary);
     color: var(--text-primary);
 }

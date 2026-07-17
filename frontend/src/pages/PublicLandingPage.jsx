@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import Logo from '../components/Logo'; // Yeni Logo bileşenini import et
 import './PublicLandingPage.css';
 
 const slides = [
@@ -66,13 +67,7 @@ const PublicLandingPage = () => {
   return (
     <div className="public-landing">
       <nav className="navbar">
-        <div className="logo">
-          <span className="icon">✂</span>
-          <div className="logo-text">
-            <strong>THE GENTLEMAN'S CUT</strong>
-            <span>Premium Barber Experience</span>
-          </div>
-        </div>
+        <Logo to="/" />
         <ul className="nav-links">
           <li><a href="#why-us">Neden Biz?</a></li>
         </ul>
@@ -137,7 +132,7 @@ const PublicLandingPage = () => {
       </div>
 
       <section id="why-us" className="why-us-section">
-        <h2>Neden Barber-Sync?</h2>
+        <h2>Neden The Gentleman's Cut?</h2>
         <p className="why-us-subtitle">Müşteriler ve Berberler İçin Mükemmel Çözüm</p>
         <div className="features-grid">
             <div className="feature-card">
@@ -160,7 +155,7 @@ const PublicLandingPage = () => {
       </section>
 
       <footer className="footer">
-        <p>&copy; {new Date().getFullYear()} The Gentleman's Cut. Tüm Hakları Saklıdır.</p>
+        <p>&copy; {new Date().getFullYear()} The Gentleman's Cut. All Rights Reserved.</p>
       </footer>
     </div>
   );
