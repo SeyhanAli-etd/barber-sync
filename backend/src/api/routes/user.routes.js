@@ -15,4 +15,9 @@ router.get('/me', authMiddleware, userController.getMe);
 // @access  Private (All authenticated users)
 router.put('/me', authMiddleware, upload.single('avatar'), userController.updateMyProfile);
 
+// @route   DELETE /api/users/me
+// @desc    Delete the current user's account
+// @access  Private (All authenticated users)
+router.delete('/me', authMiddleware, userController.deleteMyAccount);
+
 module.exports = router;

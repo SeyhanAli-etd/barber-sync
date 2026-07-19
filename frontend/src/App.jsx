@@ -12,6 +12,7 @@ import PrivateRoute from './components/PrivateRoute';
 import BookingPage from './pages/BookingPage';
 import BarberDashboardPage from './pages/BarberDashboardPage';
 import BarberRoute from './components/BarberRoute';
+import CustomerRoute from './components/CustomerRoute';
 import CustomerAppointmentsPage from './pages/CustomerAppointmentsPage';
 import RevenueDashboardPage from './pages/RevenueDashboardPage';
 import PublicLandingPage from './pages/PublicLandingPage';
@@ -28,9 +29,16 @@ function AppLayout() {
       <header className="app-header">
         <Logo to="/barbers" />
         <nav className="main-nav">
-          {/* "Randevu Al" linki artık tüm giriş yapmış kullanıcılar tarafından görülebilir. */}
-          <NavLink to="/booking">Randevu Al</NavLink>
+          {/* "Randevu Al" linki sadece müşteriler için görünür. Berberler randevu alamaz. */}
+          {user?.role === 'customer' && (
+            <NavLink to="/booking">Randevu Al</NavLink>
+          )}
           <NavLink to="/barbers">Berber Vitrini</NavLink>
+
+          {/* Berberler için Randevu Talepleri linki ana menüye taşındı */}
+          {user?.role === 'barber' && (
+            <NavLink to="/dashboard">Randevu Talepleri</NavLink>
+          )}
 
           {/* "Randevularım" linki role göre farklı sayfaya yönlendirir. */}
           {/* "Randevularım" linki sadece müşteriler için. */}
@@ -49,11 +57,7 @@ function AppLayout() {
               )}
               {/* Barber-specific links */}
               {user?.role === 'barber' && (
-                <>
-                  <NavLink to="/dashboard">Randevu Talepleri</NavLink>
-                  <NavLink to="/reports">Ciro Raporları</NavLink>
-                  <NavLink to="/my-appointments">Randevularım</NavLink>
-                </>
+                <NavLink to="/reports">Ciro Raporları</NavLink>
               )}
               <a href="#" onClick={(e) => { e.preventDefault(); logout(); }} className="dropdown-logout-btn">
                 Çıkış Yap
@@ -88,11 +92,15 @@ function App() {
       {/* Korumalı Rotalar (AppLayout'u kullanır) */}
       <Route element={<PrivateRoute />}>
         <Route element={<AppLayout />}>
-          <Route path="/home" element={<Navigate to="/barbers" replace />} /> {/* Eski / anasayfasına gidenleri yönlendir */}
-          <Route path="/booking" element={<BookingPage />} />
+          <Route path="/home" element={<Navigate to="/barbers" replace />} />
           <Route path="/barbers" element={<BarbersListPage />} />
-          <Route path="/my-appointments" element={<CustomerAppointmentsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+
+          {/* Sadece Müşterilerin Erişebileceği Rotalar: Berberler randevu alamaz. */}
+          <Route element={<CustomerRoute />}>
+            <Route path="/booking" element={<BookingPage />} />
+            <Route path="/my-appointments" element={<CustomerAppointmentsPage />} />
+          </Route>
 
           {/* Sadece Berberlerin Erişebileceği Rotalar */}
           <Route element={<BarberRoute />}>

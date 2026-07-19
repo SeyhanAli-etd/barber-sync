@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getBarberById } from '../services/barberService';
 import RatingSummary from '../components/RatingSummary';
+import { useAuth } from '../hooks/useAuth';
 import ReviewCard from '../components/ReviewCard';
 import MapDisplay from '../components/MapDisplay';
 import PhotoGallery from '../components/PhotoGallery';
@@ -34,10 +35,12 @@ const getDistanceInKm = (lat1, lon1, lat2, lon2) => {
 
 const BarberPublicProfilePage = () => {
   const { id } = useParams();
+  const { user } = useAuth();
   const [barber, setBarber] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [distance, setDistance] = useState(null);
+  const [userLocation, setUserLocation] = useState(null); // Kullanıcının konumunu saklamak için state
 
   useEffect(() => {
     const fetchBarberProfile = async () => {
@@ -65,6 +68,7 @@ const BarberPublicProfilePage = () => {
         (position) => {
           const userLat = position.coords.latitude;
           const userLon = position.coords.longitude;
+          setUserLocation({ lat: userLat, lon: userLon }); // Kullanıcının konumunu state'e kaydet
           const dist = getDistanceInKm(userLat, userLon, barber.latitude, barber.longitude);
           setDistance(dist);
         },
@@ -75,7 +79,7 @@ const BarberPublicProfilePage = () => {
       );
     }
     // If geolocation is not supported, we just don't show the distance.
-  }, [barber]);
+  }, [barber]); // userLocation'ı bağımlılıklara eklemeye gerek yok, çünkü sadece burada set ediliyor.
 
   if (loading) {
     return <div className="profile-page-container"><h2>Yükleniyor...</h2></div>;
@@ -102,11 +106,14 @@ const BarberPublicProfilePage = () => {
           {barber.shop_name && <h2>{barber.full_name}</h2>}
           <p>{barber.address}</p>
         </div>
-        <div className="profile-header-actions">
-          <Link to={`/booking`} state={{ preselectedBarberId: barber.id }} className="btn-glow">
-            Randevu Al
-          </Link>
-        </div>
+        {/* Randevu alma butonu sadece müşteriler için gösterilir; berberler randevu alamaz. */}
+        {user?.role === 'customer' && (
+          <div className="profile-header-actions">
+            <Link to={`/booking`} state={{ preselectedBarberId: barber.id }} className="btn-glow">
+              Randevu Al
+            </Link>
+          </div>
+        )}
       </header>
 
       <main className="profile-main-content">
@@ -117,7 +124,8 @@ const BarberPublicProfilePage = () => {
             <MapDisplay lat={barber.latitude} lon={barber.longitude} shopName={barber.shop_name} />
             {barber.latitude && barber.longitude && (
               <a
-                href={`https://www.google.com/maps/dir/?api=1&destination=${barber.latitude},${barber.longitude}`}
+                // DÜZELTME: Kullanıcının konumu varsa, başlangıç noktası (origin) olarak ekle.
+                href={`https://www.google.com/maps/dir/?api=1${userLocation ? `&origin=${userLocation.lat},${userLocation.lon}` : ''}&destination=${barber.latitude},${barber.longitude}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="directions-link"

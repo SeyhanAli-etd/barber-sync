@@ -5,6 +5,30 @@ import Modal from '../components/Modal';
 import ReviewForm from '../components/ReviewForm';
 import './ListPage.css';
 
+const statusBadgeStyles = `
+  .status-badge {
+    padding: 0.3em 0.7em;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: 1rem;
+    text-transform: capitalize;
+    color: #fff;
+  }
+  .status-badge.status-pending {
+    background-color: #ffc107;
+    color: #212529; /* Sarı arka plan için koyu metin */
+  }
+  .status-badge.status-confirmed {
+    background-color: #17a2b8;
+  }
+  .status-badge.status-completed {
+    background-color: #28a745;
+  }
+  .status-badge.status-cancelled {
+    background-color: #dc3545;
+  }
+`;
+
 const CustomerAppointmentsPage = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -60,6 +84,7 @@ const CustomerAppointmentsPage = () => {
 
   return (
     <div className="list-page">
+      <style>{statusBadgeStyles}</style>
       <h2>Randevularım</h2>
       {appointments.length === 0 ? (
         <p>Henüz bir randevunuz bulunmamaktadır.</p>
