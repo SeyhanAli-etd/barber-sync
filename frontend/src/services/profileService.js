@@ -32,3 +32,10 @@ export const updateMyCustomerProfile = async (profileData) => {
     return response.data;
 }
 
+/**
+ * Deletes the currently logged-in user's account.
+ * @returns {Promise<void>}
+ */
+export const deleteMyAccount = async () => {
+    await api.delete('/users/me');
+};

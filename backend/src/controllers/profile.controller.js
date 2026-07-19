@@ -58,3 +58,26 @@ exports.getMyBarberProfile = async (req, res) => {
     res.status(500).send('Sunucu Hatası');
   }
 };
+
+// @route   POST /api/profile/gallery
+// @desc    Add a photo to the current barber's gallery
+// @access  Private (Barbers only)
+exports.addPhotoToGallery = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).send({ message: 'Lütfen bir resim dosyası seçin.' });
+    }
+
+    // DÜZELTME: req.file.path yerine göreli yol kullan.
+    const imageUrl = `uploads/${req.file.filename}`;
+
+    const description = req.body.description || '';
+
+    const photo = await BarberProfile.addGalleryPhoto(req.user.id, imageUrl, description);
+
+    res.status(201).json(photo);
+  } catch (error) {
+    console.error('Galeriye fotoğraf ekleme hatası:', error);
+    res.status(500).send('Sunucu Hatası');
+  }
+};

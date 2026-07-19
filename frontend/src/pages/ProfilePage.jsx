@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { getMyBarberProfile, upsertMyBarberProfile, getMyCustomerProfile, updateMyCustomerProfile } from '../services/profileService';
+import { getMyBarberProfile, upsertMyBarberProfile, getMyCustomerProfile, updateMyCustomerProfile, deleteMyAccount } from '../services/profileService';
 import { getMyServices, createService, updateService, deleteService } from '../services/serviceService';
 import './ProfilePage.css';
 import './GalleryManagementTab.css'; // Galeri yönetimi için CSS
@@ -102,7 +102,7 @@ const ServiceListManager = () => {
 
 // Barber's profile management component
 const ProfileInfoForm = () => {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
   const [profile, setProfile] = useState({
     shop_name: '',
     address: '',
@@ -166,11 +166,12 @@ const ProfileInfoForm = () => {
     }
   };
 
-  const handleLocationSelect = (lat, lon) => {
+  const handleLocationChange = (location) => {
     setProfile(prev => ({
       ...prev,
-      latitude: lat,
-      longitude: lon,
+      address: location.address,
+      latitude: location.latitude,
+      longitude: location.longitude,
     }));
   };
 
@@ -203,6 +204,21 @@ const ProfileInfoForm = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    const confirmation = prompt("Hesabınızı silmek kalıcı bir işlemdir. Bu işlem tüm randevu ve hizmet verilerinizi de etkileyecektir. Devam etmek için 'DELETE' yazın.");
+    if (confirmation === 'DELETE') {
+        try {
+            await deleteMyAccount();
+            alert('Hesabınız başarıyla silindi. Çıkış yapılıyor.');
+            logout();
+        } catch (err) {
+            setError(err.message || 'Hesap silinemedi.');
+        }
+    } else {
+        alert('İşlem iptal edildi.');
+    }
+  };
+
   if (loading) return <div>Profil yükleniyor...</div>;
 
   return (
@@ -231,18 +247,29 @@ const ProfileInfoForm = () => {
       <div style={{ marginBottom: '1.5rem' }}>
         <h4>Konum Seçimi</h4>
         <p className="form-hint">Adresinizi harita üzerinden seçin. Enlem ve boylam otomatik olarak dolacaktır.</p>
-        <MapAddressPicker initialLat={profile.latitude} initialLon={profile.longitude} onLocationSelect={handleLocationSelect} />
+        <MapAddressPicker
+          initialValue={{ latitude: profile.latitude, longitude: profile.longitude }}
+          onLocationChange={handleLocationChange}
+        />
         <input type="hidden" name="latitude" value={profile.latitude || ''} />
         <input type="hidden" name="longitude" value={profile.longitude || ''} />
       </div>
       <button type="submit">Profili Kaydet</button>
+
+      <div className="danger-zone">
+        <h4>Tehlikeli Alan</h4>
+        <p>Hesabınızı silmek, tüm profil, hizmet ve randevu verilerinizi kalıcı olarak kaldıracaktır. Bu işlem geri alınamaz.</p>
+        <button type="button" className="btn-danger" onClick={handleDeleteAccount}>
+            Hesabımı Sil
+        </button>
+      </div>
     </form>
   );
 };
 
 // Customer's profile management component
 const CustomerProfileForm = () => {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
   const [profileData, setProfileData] = useState({
     full_name: user.full_name || '',
     email: user.email || '',
@@ -296,6 +323,21 @@ const CustomerProfileForm = () => {
     }
   };
 
+  const handleDeleteAccount = async () => {
+    const confirmation = prompt("Hesabınızı silmek kalıcı bir işlemdir. Devam etmek için 'DELETE' yazın.");
+    if (confirmation === 'DELETE') {
+        try {
+            await deleteMyAccount();
+            alert('Hesabınız başarıyla silindi. Çıkış yapılıyor.');
+            logout();
+        } catch (err) {
+            setError(err.message || 'Hesap silinemedi.');
+        }
+    } else {
+        alert('İşlem iptal edildi.');
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit}>
       {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -316,6 +358,14 @@ const CustomerProfileForm = () => {
       <button type="submit" disabled={loading}>
         {loading ? 'Kaydediliyor...' : 'Profili Kaydet'}
       </button>
+
+      <div className="danger-zone">
+        <h4>Tehlikeli Alan</h4>
+        <p>Hesabınızı silmek, tüm verilerinizi kalıcı olarak kaldıracaktır. Bu işlem geri alınamaz.</p>
+        <button type="button" className="btn-danger" onClick={handleDeleteAccount}>
+            Hesabımı Sil
+        </button>
+      </div>
     </form>
   );
 };

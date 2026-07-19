@@ -6,7 +6,10 @@ const BarberGallery = require('../models/barberGallery.model');
 exports.uploadGalleryPhoto = async (req, res) => {
   try {
     const barber_id = req.user.id;
-    const image_url = req.file ? req.file.path.replace(/\\/g, '/') : null;
+    // SORUN: req.file.path, sunucudaki mutlak dosya yolunu verir (örn: C:\Users\...).
+    // Bu, frontend'in erişebileceği bir URL değildir.
+    // DÜZELTME: Yüklenen dosyanın sadece adını kullanarak göreli bir URL oluştur.
+    const image_url = req.file ? `uploads/${req.file.filename}` : null;
     const { description } = req.body;
 
     if (!image_url) {

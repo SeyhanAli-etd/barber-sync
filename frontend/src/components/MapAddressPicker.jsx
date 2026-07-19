@@ -24,7 +24,11 @@ L.Icon.Default.mergeOptions({
 
 const MapAddressPicker = ({ initialValue, onLocationChange }) => {
   // Başlangıç değeri yoksa İstanbul'u merkez al
-  const [position, setPosition] = useState(initialValue?.latitude ? [initialValue.latitude, initialValue.longitude] : [41.015137, 28.979530]);
+  const [position, setPosition] = useState(
+    initialValue?.latitude && initialValue?.longitude
+      ? [parseFloat(initialValue.latitude), parseFloat(initialValue.longitude)]
+      : [41.015137, 28.979530]
+  );
   const [addressQuery, setAddressQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
