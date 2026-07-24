@@ -108,4 +108,8 @@ Bu proje, geliştirme sürecinin her aşamasını belgeleyen kapsamlı bir dokü
 - **Teknik Mimari:** Teknoloji yığını, sistem mimarisi ve tasarım kararlarını detaylandırır.
 - **Veritabanı Şeması:** PostgreSQL veritabanı modelini ve tablolar arasındaki ilişkileri gösterir.
 - **API Endpoint Listesi:** Backend tarafından sunulan tüm API yollarını, metotlarını ve açıklamalarını listeler.
+<<<<<<< HEAD
 - **Geliştirme Görevleri:** Proje boyunca tamamlanan ve planlanan tüm görevlerin listesi.
+=======
+- **Geliştirme Görevleri:** Proje boyunca tamamlanan ve planlanan tüm görevlerin listesi.
+>>>>>>> 3e15de87b3a9540b30825dbfc94bc60c8bdb140c

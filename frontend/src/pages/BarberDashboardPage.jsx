@@ -5,7 +5,7 @@ import Modal from '../components/Modal';
 import './ListPage.css';
 import './BarberDashboardPage.css';
 
-// Helper to format date to YYYY-MM-DD
+// Tarihi YYYY-MM-DD formatına çeviren yardımcı fonksiyon
 const toYYYYMMDD = (date) => {
   const d = new Date(date);
   const year = d.getFullYear();
@@ -14,12 +14,20 @@ const toYYYYMMDD = (date) => {
   return `${year}-${month}-${day}`;
 };
 
-// Helper to get the start of the week (Monday)
+// Haftanın başlangıcını (Pazartesi) bulan yardımcı fonksiyon
 const getStartOfWeek = (date) => {
   const d = new Date(date);
-  const day = d.getDay(); // Sunday - 0, Monday - 1, ...
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+  const day = d.getDay(); // Pazar - 0, Pazartesi - 1, ...
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // gün pazar ise ayarla
   return new Date(d.setDate(diff));
+};
+
+// Durum değerlerinin Türkçe karşılıkları (görüntüleme amaçlı)
+const statusLabels = {
+  pending: 'Bekliyor',
+  confirmed: 'Onaylandı',
+  completed: 'Tamamlandı',
+  cancelled: 'İptal Edildi',
 };
 
 const statusBadgeStyles = `
@@ -46,7 +54,7 @@ const statusBadgeStyles = `
   }
 `;
 
-// Modal for completing an appointment
+// Randevuyu tamamlamak için kullanılan modal
 const CompleteAppointmentModal = ({ appointment, services, onComplete, onCancel }) => {
   const [selectedServiceId, setSelectedServiceId] = useState('');
   const [finalPrice, setFinalPrice] = useState('');
@@ -142,10 +150,10 @@ const BarberDashboardPage = () => {
   const processedAppointments = useMemo(() => {
     const now = new Date();
     const todayStr = toYYYYMMDD(now);
-    
+
     const startOfWeek = getStartOfWeek(now);
     startOfWeek.setHours(0, 0, 0, 0);
-    
+
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 6);
     endOfWeek.setHours(23, 59, 59, 999);
@@ -153,14 +161,14 @@ const BarberDashboardPage = () => {
     const lowercasedQuery = searchQuery.toLowerCase();
 
     const filtered = allAppointments.filter(app => {
-        // Status Filter
+        // Durum filtresi
         const statusMatch = statusFilter === 'all' || app.status === statusFilter;
         if (!statusMatch) return false;
 
-        // Date filter
+        // Tarih filtresi
         const appDate = new Date(app.appointment_time);
         const appDateStr = toYYYYMMDD(appDate);
-        
+
         const dateMatch =
             viewMode === 'all' ||
             (viewMode === 'today' && appDateStr === todayStr) ||
@@ -168,13 +176,13 @@ const BarberDashboardPage = () => {
 
         if (!dateMatch) return false;
 
-        // Search query filter
+        // Arama sorgusu filtresi
         const searchMatch = !searchQuery || app.customer_name.toLowerCase().includes(lowercasedQuery);
 
         return searchMatch;
     });
 
-    // Group by date
+    // Tarihe göre grupla
     const grouped = filtered.reduce((acc, app) => {
         const dateKey = toYYYYMMDD(new Date(app.appointment_time));
         if (!acc[dateKey]) {
@@ -184,7 +192,7 @@ const BarberDashboardPage = () => {
         return acc;
     }, {});
 
-    // Sort keys (dates) and return as an array of [date, appointments]
+    // Tarihleri (anahtarları) sırala ve [tarih, randevular] dizisi olarak döndür
     return Object.entries(grouped).sort(([dateA], [dateB]) => new Date(dateA) - new Date(dateB));
 
   }, [allAppointments, searchQuery, viewMode, statusFilter]);
@@ -192,7 +200,7 @@ const BarberDashboardPage = () => {
   const handleStatusUpdate = async (appointmentId, status) => {
     try {
       await updateAppointmentStatus(appointmentId, status);
-      fetchAllData(); // Refresh the list
+      fetchAllData(); // Listeyi yenile
     } catch (err) {
       alert(`Hata: ${err.message}`);
     }
@@ -201,15 +209,15 @@ const BarberDashboardPage = () => {
   const handleComplete = async (appointmentId, data) => {
     try {
       await completeAppointment(appointmentId, data);
-      setAppointmentToComplete(null); // Close modal
-      fetchAllData(); // Refresh the list
+      setAppointmentToComplete(null); // Modalı kapat
+      fetchAllData(); // Listeyi yenile
     } catch (err) {
       alert(`Hata: ${err.message}`);
     }
   };
 
   const renderStatusBadge = (status) => {
-    return <span className={`status-badge status-${status}`}>{status}</span>;
+    return <span className={`status-badge status-${status}`}>{statusLabels[status] || status}</span>;
   };
 
   const renderAppointmentCard = (app) => (
