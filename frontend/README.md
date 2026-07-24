@@ -1,16 +1,31 @@
-# React + Vite
+# Barber-Sync - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Bu klasör, Barber-Sync projesinin [React](https://react.dev/) ile geliştirilmiş frontend (kullanıcı arayüzü) kodlarını içerir. Proje, hızlı bir geliştirme deneyimi için [Vite](https://vitejs.dev/) kullanılarak oluşturulmuştur.
 
-Currently, two official plugins are available:
+## Temel Teknolojiler
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Framework:** React 18
+- **Build Aracı:** Vite
+- **Routing:** React Router DOM
+- **State Management:** React Context API
+- **API İletişimi:** Axios
+- **Animasyon:** Framer Motion
+- **Gerçek Zamanlı İletişim:** Socket.IO Client
 
-## React Compiler
+## Kurulum ve Çalıştırma
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Projenin tamamını çalıştırmak için lütfen ana dizindeki [README.md](/README.md) dosyasını takip edin.
 
-## Expanding the Oxlint configuration
+Sadece frontend'i çalıştırmak için:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+1.  Bağımlılıkları yükleyin:
+    ```bash
+    npm install
+    ```
+
+2.  Geliştirme sunucusunu başlatın:
+    ```bash
+    npm run dev
+    ```
+
+Uygulama arayüzü varsayılan olarak `http://localhost:5173` adresinde çalışacaktır. Backend sunucusunun da çalışıyor olması gerektiğini unutmayın.
